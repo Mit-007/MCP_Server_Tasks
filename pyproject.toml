@@ -1,0 +1,23 @@
+[project]
+name = "tasks-mcp-server"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "Mit-007", email = "mitjpatel2904@gmail.com" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "fastmcp>=3.4.7",
+    "langchain>=1.3.16",
+    "langchain-google-genai>=4.3.5",
+    "langchain-mcp-adapters>=0.3.2",
+    "pydantic>=2.13.4",
+]
+
+[project.scripts]
+tasks-mcp-server = "tasks_mcp_server:main"
+
+[build-system]
+requires = ["uv_build>=0.12.2,<0.13.0"]
+build-backend = "uv_build"
