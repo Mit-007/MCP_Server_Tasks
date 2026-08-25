@@ -315,7 +315,7 @@ def register_tools(mcp):
         annotations={
             "readOnlyHint": False,
             "destructiveHint": True,
-            "idempotentHint": True,
+            "idempotentHint": False,
             "openWorldHint": False,
         }
     )

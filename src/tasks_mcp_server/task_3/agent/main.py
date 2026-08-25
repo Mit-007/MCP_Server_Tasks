@@ -27,8 +27,8 @@ def get_response_size_bytes(response):
             serialized.encode("utf-8")
         )
 
-    except Exception:
-
+    except Exception as e:
+        logger.error(f"Failed to calculate response size: {e}")
         return len(
             str(response).encode("utf-8")
         )
@@ -300,7 +300,7 @@ async def main():
 
         except Exception as e:
             logger.exception("Error while processing user request")
-            print(f"\nError: {str(e)}")
+            print(f"\n❌ Error : {str(e)}")
 
 
 if __name__ == "__main__":

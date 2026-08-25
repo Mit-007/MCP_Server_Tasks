@@ -3,7 +3,7 @@ from src.tasks_mcp_server.task_2.data import data as D
 from src.tasks_mcp_server.task_2.schemas import tool_output_schemas as TS
 from src.tasks_mcp_server.task_2.schemas.tool_input_schemas import PaginationInput
 from src.tasks_mcp_server.task_2.schemas.error_schemas import ErrorResponse
-
+from src.tasks_mcp_server.task_2.core.logger import logger
 
 def register_read_tools(mcp):
 
@@ -22,6 +22,13 @@ def register_read_tools(mcp):
 
         try:
             start = int(data.cursor) if data.cursor else 0
+
+            if start < 0:
+                return ErrorResponse(
+                    error="Invalid cursor value",
+                    code="INVALID_CURSOR",
+                    suggestion="Cursor must be a non-negative integer."
+                )
 
             total_count = len(D.jobs)
 
@@ -47,7 +54,8 @@ def register_read_tools(mcp):
                 suggestion="Provide a valid numeric cursor.",
             )
 
-        except Exception:
+        except Exception as e:
+            logger.error(f"Unexpected error in list_jobs: {str(e)}", exc_info=True)
             return ErrorResponse(
                 error="Failed to list jobs",
                 code="INTERNAL_ERROR",
@@ -71,18 +79,25 @@ def register_read_tools(mcp):
         try:
             start = int(data.cursor) if data.cursor else 0
 
+            if start < 0:
+                return ErrorResponse(
+                    error="Invalid cursor value",
+                    code="INVALID_CURSOR",
+                    suggestion="Cursor must be a non-negative integer."
+                )
+
             total_count = len(D.technicians)
 
-            data = D.technicians[start:start + data.limit]
+            items = D.technicians[start:start + data.limit]
 
-            next_position = start + len(data)
+            next_position = start + len(items)
 
             has_more = next_position < total_count
 
             next_cursor = str(next_position) if has_more else None
 
             return TS.TechniciansOutput(
-                data=data,
+                data=items,
                 next_cursor=next_cursor,
                 has_more=has_more,
                 total_count=total_count,
@@ -124,6 +139,13 @@ def register_read_tools(mcp):
             ]
 
             start = int(data.cursor) if data.cursor else 0
+
+            if start < 0:
+                return ErrorResponse(
+                    error="Invalid cursor value",
+                    code="INVALID_CURSOR",
+                    suggestion="Cursor must be a non-negative integer."
+                )
 
             total_count = len(available)
 
@@ -178,6 +200,13 @@ def register_read_tools(mcp):
             ]
 
             start = int(data.cursor) if data.cursor else 0
+
+            if start < 0:
+                return ErrorResponse(
+                    error="Invalid cursor value",
+                    code="INVALID_CURSOR",
+                    suggestion="Cursor must be a non-negative integer."
+                )
 
             total_count = len(open_jobs)
 

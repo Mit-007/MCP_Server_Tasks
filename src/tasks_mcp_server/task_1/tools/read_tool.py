@@ -13,7 +13,7 @@ def register_read_tools(mcp):
         except Exception as e:
             raise RuntimeError(
                 f"Failed to list jobs: {str(e)}.\n"
-                f"Suggestion: retry the request; if the problem persists, check resources task-1://list_of_jobs."
+                f"Suggestion: retry the request; if the problem persists, check resources jobs://all."
             )
 
     @mcp.tool()
@@ -47,7 +47,7 @@ def register_read_tools(mcp):
             )
 
     @mcp.tool()
-    def open_jobs() -> TS.JobsOutput:
+    async def open_jobs() -> TS.JobsOutput:
         """list of all open jobs"""
         try:
             open_jobs = [

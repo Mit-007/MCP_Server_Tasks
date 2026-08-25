@@ -17,3 +17,7 @@ tests/
 
 # env file
 .env
+
+DEMO_ARCHITECTURE.md
+
+DEMO_EVALUATION.xml

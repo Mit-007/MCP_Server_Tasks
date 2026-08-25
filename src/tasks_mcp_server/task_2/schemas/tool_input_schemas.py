@@ -7,11 +7,14 @@ class Priority(str, Enum):
     LOW = "low"
     MEDIUM = "medium"
     HIGH = "high"
+    NORMAL = "normal"
+    URGENT = "urgent"
     CRITICAL = "critical"
 
 class JobStatus(str, Enum):
     OPEN = "open"
     ASSIGNED = "assigned"
+    IN_PROGRESS = "in_progress"
     COMPLETED = "completed"
     CANCELLED = "cancelled"
 

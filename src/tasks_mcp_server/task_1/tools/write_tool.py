@@ -4,7 +4,7 @@ from src.tasks_mcp_server.task_1.schemas.tool_input_schemas import CreateJobInpu
 from src.tasks_mcp_server.task_1.services.validation_services import get_job ,get_technician
 
 
-def register_write_tool(mcp):
+def register_write_tools(mcp):
 
     @mcp.tool()
     async def create_job(data : CreateJobInput) -> JobMutationResponse:
@@ -23,7 +23,7 @@ def register_write_tool(mcp):
                 "title": data.title,
                 "status": "open",
                 "description": data.description,
-                "priority": data.priority,
+                "priority": data.priority.value,
                 "technician_id": None,
             }
 
@@ -116,7 +116,7 @@ def register_write_tool(mcp):
                 job["description"] = data.description
 
             if data.priority is not None:
-                job["priority"] = data.priority
+                job["priority"] = data.priority.value
 
             if data.status is not None:
                 job["status"] = data.status
@@ -141,26 +141,33 @@ def register_write_tool(mcp):
     async def delete_job(data : DeleteJobInput) -> JobMutationResponse:
         """Delete a job from the system."""
         try:
-            for job in D.jobs:
-                if job["id"] == data.job_id:
-                    if job["technician_id"] is not None:
-                        technician = get_technician(job["technician_id"])
+            job_index = next(
+                (i for i, job in enumerate(D.jobs) if job["id"] == data.job_id),
+                None
+            )
 
-                        if technician is not None:
-                            technician["available"] = True
+            if job_index is None:
+                return JobMutationResponse(
+                    success=False,
+                    message=f"Job {data.job_id} not found. Call list_jobs to see valid job IDs and try again.",
+                    job=None,
+                )
 
-                    D.jobs.remove(job)
+            job = D.jobs[job_index]
 
-                    return JobMutationResponse(
-                            success=True,
-                            message=f"Job {data.job_id} deleted successfully",
-                            job=job,
-                    )
+            # Restore technician availability
+            if job["technician_id"] is not None:
+                technician = get_technician(job["technician_id"])
+                if technician is not None:
+                    technician["available"] = True
+
+            # remove job
+            D.jobs.pop(job_index)
 
             return JobMutationResponse(
-                success=False,
-                message=f"Job {data.job_id} not found. Call list_jobs to see valid job IDs and try again.",
-                job=None,
+                success=True,
+                message=f"Job {data.job_id} deleted successfully",
+                job=job,
             )
         except Exception as e:
             return JobMutationResponse(

@@ -1,4 +1,5 @@
 from typing import Union
+import json
 
 from src.tasks_mcp_server.task_2.data import data as D
 from src.tasks_mcp_server.task_2.schemas.error_schemas import ErrorResponse
@@ -10,7 +11,7 @@ def register_prompts(mcp):
     @mcp.prompt()
     async def triage_job(
         job_id: str,
-    ) -> Union[str, ErrorResponse]:
+    ) -> str:
         """Analyze a job and provide a triage assessment.
 
         Retrieves the job using the provided job ID and generates a prompt
@@ -23,7 +24,7 @@ def register_prompts(mcp):
             job = get_job(job_id)
 
             if job is None:
-                return ErrorResponse(
+                error = ErrorResponse(
                     error=f"Job {job_id} was not found",
                     code="JOB_NOT_FOUND",
                     suggestion=(
@@ -31,6 +32,7 @@ def register_prompts(mcp):
                         "Call list_jobs to see available jobs."
                     ),
                 )
+                return json.dumps(error.model_dump())
 
             return f"""You are an expert job triage assistant for a field service operations team.
 
@@ -67,7 +69,7 @@ Be concise and specific. If the description lacks enough detail to confidently a
 """
 
         except KeyError:
-            return ErrorResponse(
+            error = ErrorResponse(
                 error=(
                     f"Unable to triage Job {job_id}: "
                     "required job field is missing"
@@ -77,9 +79,10 @@ Be concise and specific. If the description lacks enough detail to confidently a
                     "Verify that the job data contains all required fields."
                 ),
             )
+            return json.dumps(error.model_dump())
 
         except TypeError:
-            return ErrorResponse(
+            error = ErrorResponse(
                 error=(
                     f"Unable to triage Job {job_id}: "
                     "invalid job data"
@@ -90,9 +93,10 @@ Be concise and specific. If the description lacks enough detail to confidently a
                     "dictionary structure."
                 ),
             )
+            return json.dumps(error.model_dump())
 
         except Exception:
-            return ErrorResponse(
+            error = ErrorResponse(
                 error=(
                     f"Unable to triage Job {job_id}: "
                     "an unexpected error occurred"
@@ -102,12 +106,13 @@ Be concise and specific. If the description lacks enough detail to confidently a
                     "Verify the job ID and job data, then try again."
                 ),
             )
+            return json.dumps(error.model_dump())
 
 
     @mcp.prompt()
     async def assign_suggestion(
         job_id: str,
-    ) -> Union[str, ErrorResponse]:
+    ) -> str:
         """Recommend the best available technician for a job.
 
         Retrieves the job using the provided job ID and generates a prompt
@@ -120,7 +125,7 @@ Be concise and specific. If the description lacks enough detail to confidently a
             job = get_job(job_id)
 
             if job is None:
-                return ErrorResponse(
+                error = ErrorResponse(
                     error=f"Job {job_id} was not found",
                     code="JOB_NOT_FOUND",
                     suggestion=(
@@ -128,6 +133,7 @@ Be concise and specific. If the description lacks enough detail to confidently a
                         "Call list_jobs to see available jobs."
                     ),
                 )
+                return json.dumps(error.model_dump())
 
             available_technicians = [
                 technician
@@ -136,7 +142,7 @@ Be concise and specific. If the description lacks enough detail to confidently a
             ]
 
             if not available_technicians:
-                return ErrorResponse(
+                error = ErrorResponse(
                     error=(
                         f"No available technicians were found for "
                         f"Job {job['id']}."
@@ -147,6 +153,7 @@ Be concise and specific. If the description lacks enough detail to confidently a
                         "and retry the recommendation."
                     ),
                 )
+                return json.dumps(error.model_dump())
 
             technician_list = "\n".join(
                 f"- ID: {t['id']} | Name: {t['name']} | "
@@ -191,7 +198,7 @@ Do not assign the technician. Only provide a recommendation.
 """
 
         except KeyError:
-            return ErrorResponse(
+            error = ErrorResponse(
                 error=(
                     f"Unable to generate assignment suggestion for "
                     f"Job {job_id}: required data field is missing"
@@ -201,9 +208,10 @@ Do not assign the technician. Only provide a recommendation.
                     "Verify that the job data contains all required fields."
                 ),
             )
+            return json.dumps(error.model_dump())
 
         except TypeError:
-            return ErrorResponse(
+            error = ErrorResponse(
                 error=(
                     f"Unable to generate assignment suggestion for "
                     f"Job {job_id}: invalid data"
@@ -214,9 +222,10 @@ Do not assign the technician. Only provide a recommendation.
                     "dictionary structure."
                 ),
             )
+            return json.dumps(error.model_dump())
 
         except Exception:
-            return ErrorResponse(
+            error = ErrorResponse(
                 error=(
                     f"Unable to generate assignment suggestion for "
                     f"Job {job_id}: an unexpected error occurred"
@@ -226,3 +235,4 @@ Do not assign the technician. Only provide a recommendation.
                     "Verify the job ID and job data, then try again."
                 ),
             )
+            return json.dumps(error.model_dump())

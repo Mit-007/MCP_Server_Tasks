@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<evaluation name="demo_evaluation" version="1.0">
+  <metadata>
+    <title>Demo Evaluation for Multi-Server MCP Agent</title>
+    <description>
+      Ten evaluation questions for testing an MCP agent across the job server and call-log server.
+      Questions are split evenly between the two servers and each one requires at least three tool calls
+      to answer correctly.
+    </description>
+    <requirements>
+      <requirement>5 questions must target the job server</requirement>
+      <requirement>5 questions must target the call-log server</requirement>
+      <requirement>Each question must require at least 3 tool calls</requirement>
+    </requirements>
+  </metadata>
+
+  <section name="job_server">
+    <question id="JQ1" server="job_server" min_tool_calls="3">
+      <prompt>
+        Find the total number of jobs, the number of open jobs, and the number of available technicians.Then explain whether there are enough available technicians to cover all open jobs right now.
+      </prompt>
+      <tool_expectation>
+        <tool>job_server_list_jobs</tool>
+        <tool>job_server_open_jobs</tool>
+        <tool>job_server_get_available_technicians</tool>
+      </tool_expectation>
+    </question>
+
+    <question id="JQ2" server="job_server" min_tool_calls="3">
+      <prompt>
+        Identify the first three of jobs, the second three of jobs,the third three jobs, and the total number of jobs.Use the pagination metadata to explain how many jobs remain after the first page.
+      </prompt>
+      <tool_expectation>
+        <tool>job_server_list_jobs</tool>
+        <tool>job_server_list_jobs</tool>
+        <tool>job_server_list_jobs</tool>
+      </tool_expectation>
+    </question>
+
+    <question id="JQ3" server="job_server" min_tool_calls="3">
+      <prompt>
+        Compare the open jobs list with the available technicians list.Report one open job that appears most urgent and name a technician who could potentially handle it.Justify the choice using data from both lists.
+      </prompt>
+      <tool_expectation>
+        <tool>job_server_open_jobs</tool>
+        <tool>job_server_get_available_technicians</tool>
+        <tool>job_server_list_jobs</tool>
+      </tool_expectation>
+    </question>
+
+    <question id="JQ4" server="job_server" min_tool_calls="3">
+      <prompt>
+        Inspect the current jobs and technicians, then determine how many jobs are still unassigned.After that, identify whether any technician is currently available and name the first available technician if one exists.
+      </prompt>
+      <tool_expectation>
+        <tool>job_server_list_jobs</tool>
+        <tool>job_server_open_jobs</tool>
+        <tool>job_server_get_available_technicians</tool>
+      </tool_expectation>
+    </question>
+
+    <question id="JQ5" server="job_server" min_tool_calls="3">
+      <prompt>
+        Use pagination-aware queries to find the total job count and verify whether the final page is empty, partial, or full.Explain your conclusion using at least two page fetches plus the metadata returned by the list tool.
+      </prompt>
+      <tool_expectation>
+        <tool>job_server_list_jobs</tool>
+        <tool>job_server_list_jobs</tool>
+        <tool>job_server_list_jobs</tool>
+      </tool_expectation>
+    </question>
+
+    <question id="JQ6" server="job_server" min_tool_calls="3">
+      <prompt>
+        Perform a difficult consistency check across the job dataset: verify the total number of jobs, compare it to the number of open jobs, and compare both against available technicians.Then determine whether the current job workflow appears balanced or overloaded, and explain why.
+      </prompt>
+      <tool_expectation>
+        <tool>job_server_list_jobs</tool>
+        <tool>job_server_open_jobs</tool>
+        <tool>job_server_get_available_technicians</tool>
+      </tool_expectation>
+    </question>
+
+    <question id="JQ7" server="job_server" min_tool_calls="3">
+      <prompt>
+        Run a pagination stress check on the job list by fetching the beginning, middle, and end of the dataset.
+        Use the returned cursors to explain whether any page boundary produces an empty, partial, or full page.
+      </prompt>
+      <tool_expectation>
+        <tool>job_server_list_jobs</tool>
+        <tool>job_server_list_jobs</tool>
+        <tool>job_server_list_jobs</tool>
+      </tool_expectation>
+    </question>
+
+    <question id="JQ8" server="job_server" min_tool_calls="3">
+      <prompt>
+        Identify the most constrained technician situation by comparing the full technician list, the available technician list, and the open jobs list.
+        Then explain whether the server currently has enough active capacity to absorb one additional urgent job.
+      </prompt>
+      <tool_expectation>
+        <tool>job_server_list_technicians</tool>
+        <tool>job_server_get_available_technicians</tool>
+        <tool>job_server_open_jobs</tool>
+      </tool_expectation>
+    </question>
+
+    <question id="JQ9" server="job_server" min_tool_calls="3">
+      <prompt>
+        Detect a potentially risky operational pattern in the job system by comparing open jobs, all jobs, and available technicians.
+        Your answer should identify whether the current state suggests a backlog, a staffing shortage, or neither, with evidence.
+      </prompt>
+      <tool_expectation>
+        <tool>job_server_open_jobs</tool>
+        <tool>job_server_list_jobs</tool>
+        <tool>job_server_get_available_technicians</tool>
+      </tool_expectation>
+    </question>
+
+    <question id="JQ10" server="job_server" min_tool_calls="3">
+      <prompt>
+        Build a compact operational snapshot of the job server by independently checking the total job count, the open job count, and the available technician count.
+        Then explain the operational state in one sentence that is supported by those three checks.
+      </prompt>
+      <tool_expectation>
+        <tool>job_server_list_jobs</tool>
+        <tool>job_server_open_jobs</tool>
+        <tool>job_server_get_available_technicians</tool>
+      </tool_expectation>
+    </question>
+  </section>
+
+  <section name="call_log_server">
+    <question id="CQ1" server="call_log_server" min_tool_calls="3">
+      <prompt>
+        Find the total number of call logs, the number of failed calls, and the number of pending calls.
+        Then summarize whether failed calls are more common than pending calls.
+      </prompt>
+      <tool_expectation>
+        <tool>call_log_server_list_calls</tool>
+        <tool>call_log_server_list_calls_by_status</tool>
+        <tool>call_log_server_get_stats</tool>
+      </tool_expectation>
+    </question>
+
+    <question id="CQ2" server="call_log_server" min_tool_calls="3">
+      <prompt>
+        Retrieve the first page of call logs, the second page of call logs, and the total number of logs.
+        Use the cursor information to explain how many records remain after the first page.
+      </prompt>
+      <tool_expectation>
+        <tool>call_log_server_list_calls</tool>
+        <tool>call_log_server_list_calls</tool>
+        <tool>call_log_server_list_calls</tool>
+      </tool_expectation>
+    </question>
+
+    <question id="CQ3" server="call_log_server" min_tool_calls="3">
+      <prompt>
+        Inspect the call logs and find one failed call and one pending call.
+        Explain the difference between the two and identify the customer names involved.
+      </prompt>
+      <tool_expectation>
+        <tool>call_log_server_list_calls_by_status</tool>
+        <tool>call_log_server_list_calls_by_status</tool>
+        <tool>call_log_server_get_stats</tool>
+      </tool_expectation>
+    </question>
+
+    <question id="CQ4" server="call_log_server" min_tool_calls="3">
+      <prompt>
+        Use the call log server to determine which agent handled the most calls and which customer appears most frequently.
+        Then verify your conclusion by checking at least two different call-log views.
+      </prompt>
+      <tool_expectation>
+        <tool>call_log_server_list_calls</tool>
+        <tool>call_log_server_list_calls_by_status</tool>
+        <tool>call_log_server_get_stats</tool>
+      </tool_expectation>
+    </question>
+
+    <question id="CQ5" server="call_log_server" min_tool_calls="3">
+      <prompt>
+        Determine whether the call-log dataset contains more resolved calls or unresolved calls.
+        Support your answer with a statistics call plus at least two filtered or paginated list calls.
+      </prompt>
+      <tool_expectation>
+        <tool>call_log_server_get_stats</tool>
+        <tool>call_log_server_list_calls</tool>
+        <tool>call_log_server_list_calls_by_status</tool>
+      </tool_expectation>
+    </question>
+
+    <question id="CQ6" server="call_log_server" min_tool_calls="3">
+      <prompt>
+        Perform a difficult dataset audit on the call logs by comparing total logs, failed logs, and pending logs.
+        Then determine whether the call center is currently trending toward resolution or escalation.
+      </prompt>
+      <tool_expectation>
+        <tool>call_log_server_get_stats</tool>
+        <tool>call_log_server_list_calls</tool>
+        <tool>call_log_server_list_calls_by_status</tool>
+      </tool_expectation>
+    </question>
+
+    <question id="CQ7" server="call_log_server" min_tool_calls="3">
+      <prompt>
+        Run a pagination stress check on the call-log list by fetching the first page, a middle page, and a final page.
+        Explain whether the cursor progression shows a clean boundary or an edge case that could confuse a naive agent.
+      </prompt>
+      <tool_expectation>
+        <tool>call_log_server_list_calls</tool>
+        <tool>call_log_server_list_calls</tool>
+        <tool>call_log_server_list_calls</tool>
+      </tool_expectation>
+    </question>
+
+    <question id="CQ8" server="call_log_server" min_tool_calls="3">
+      <prompt>
+        Identify the strongest imbalance in the call-log server by comparing the statistics view, the full call list, and a filtered status view.
+        State whether the imbalance comes from too many failed calls, too many pending calls, or neither.
+      </prompt>
+      <tool_expectation>
+        <tool>call_log_server_get_stats</tool>
+        <tool>call_log_server_list_calls</tool>
+        <tool>call_log_server_list_calls_by_status</tool>
+      </tool_expectation>
+    </question>
+
+    <question id="CQ9" server="call_log_server" min_tool_calls="3">
+      <prompt>
+        Infer which customer or call pattern should be prioritized next by comparing the most recent call entries, the filtered pending set, and the overall statistics.
+        Your answer must justify the priority decision using all three views.
+      </prompt>
+      <tool_expectation>
+        <tool>call_log_server_list_calls</tool>
+        <tool>call_log_server_list_calls_by_status</tool>
+        <tool>call_log_server_get_stats</tool>
+      </tool_expectation>
+    </question>
+
+    <question id="CQ10" server="call_log_server" min_tool_calls="3">
+      <prompt>
+        Create an operational snapshot for the call-log server by separately checking total volume, failure volume, and pending volume.
+        Then explain in one sentence whether the server appears stable, degraded, or overloaded.
+      </prompt>
+      <tool_expectation>
+        <tool>call_log_server_get_stats</tool>
+        <tool>call_log_server_list_calls</tool>
+        <tool>call_log_server_list_calls_by_status</tool>
+      </tool_expectation>
+    </question>
+  </section>
+</evaluation>

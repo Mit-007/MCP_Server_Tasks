@@ -3,7 +3,7 @@ from src.tasks_mcp_server.task_1.data import data as D
 
 def register_technicians_resources(mcp):
 
-    @mcp.resource("task-1://available_technicians", mime_type="application/json")
+    @mcp.resource("technicians://available", mime_type="application/json")
     async def available_technicians():
         """Give list of all Available technicians."""
         try:

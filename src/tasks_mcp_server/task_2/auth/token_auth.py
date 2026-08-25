@@ -214,7 +214,7 @@ def check_token_expiry(
  
         if expires_at is None:
             logger.warning("Token has no expiration time configured")
-            return False, 0
+            return True, 0
  
         if not isinstance(expires_at, (int, float)):
             logger.error(f"Invalid expires_at type: expected int or float, got {type(expires_at)}")

@@ -1,3 +1,4 @@
+import asyncio
 from fastmcp import FastMCP
 from fastmcp.server.transforms import Namespace
 from src.tasks_mcp_server.task_3.call_log_server.middleware.middleware import AuthenticationMiddleware
@@ -5,11 +6,10 @@ from src.tasks_mcp_server.task_3.call_log_server.core.config import TRANSPORT_TY
 from src.tasks_mcp_server.task_3.call_log_server.prompts import prompts 
 from src.tasks_mcp_server.task_3.call_log_server.resources import resources
 from src.tasks_mcp_server.task_3.call_log_server.tools import tools
-
+from src.tasks_mcp_server.task_3.call_log_server.services.validation_tools_annotation import validate_tool_annotations
 
 # ---> create Mcp server
 mcp =FastMCP("Task-3_call_log_server")
-mcp.add_middleware(AuthenticationMiddleware())
 
 
 ## ----> Add primitives
@@ -17,12 +17,19 @@ mcp.add_middleware(AuthenticationMiddleware())
 # Tools
 tools.register_tools(mcp)
 
+# validate tools annotation
+asyncio.run(validate_tool_annotations(mcp))
+
 # resources
 resources.register_resources(mcp)
 
 #prompts
 prompts.register_prompts(mcp)
 
+# add middleware for auth
+mcp.add_middleware(AuthenticationMiddleware())
+
+# The Namespace transform prefixes all tools/resources with "call_log_server_"
 mcp.add_transform(Namespace("call_log_server"))
 
 # ---> run mcp server

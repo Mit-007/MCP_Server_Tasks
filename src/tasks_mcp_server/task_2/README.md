@@ -183,9 +183,9 @@ task-2/
 
 | Name | Type | Description |
 |:---|:---|:---|
-| `task-1://list_of_jobs` | Resource | Returns the full job list as JSON. |
-| `task-1://list_of_open_jobs` | Resource | Returns only open jobs as JSON. |
-| `task-1://available_technicians` | Resource | Returns only available technicians as JSON. |
+| `jobs://all` | Resource | Returns the full job list as JSON. |
+| `jobs://open` | Resource | Returns only open jobs as JSON. |
+| `technicians://available` | Resource | Returns only available technicians as JSON. |
 
 ## 🤖 Prompts
 

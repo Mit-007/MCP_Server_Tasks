@@ -17,7 +17,7 @@ def register_prompts(mcp):
             job = get_job(job_id)
 
             if job is None:
-                return f"Job {job_id} was not found.Plaese provide a valid existing job ID."
+                return f"Job {job_id} was not found.Please provide a valid existing job ID."
 
             return f"""You are an expert job triage assistant for a field service operations team.
 
@@ -54,16 +54,19 @@ Be concise and specific. If the description lacks enough detail to confidently a
 """
         except KeyError as exc:
             return (
-                f"Unable to triage Job {job_id}: required job field is missing ({exc}).",
-                f"verify that the job data and check it contains all required fields")
+                f"Unable to triage Job {job_id}: required job field is missing ({exc})."
+                f"verify that the job data and check it contains all required fields"
+                )
         except TypeError as exc:
             return (
-                f"Unable to triage Job {job_id}: invalid job data ({exc}).",
-                f"verify that the job data has the expected dictionary")
+                f"Unable to triage Job {job_id}: invalid job data ({exc})."
+                f"verify that the job data has the expected dictionary"
+                )
         except Exception as exc:
             return ( 
-                f"Unable to triage Job {job_id}: an unexpected error occurred ({exc}).",
-                f"verify the job ID, job data and try again")
+                f"Unable to triage Job {job_id}: an unexpected error occurred ({exc})."
+                f"verify the job ID, job data and try again"
+                )
 
 
     @mcp.prompt()
@@ -80,7 +83,7 @@ Be concise and specific. If the description lacks enough detail to confidently a
             job = get_job(job_id)
 
             if job is None:
-                return f"Job {job_id} was not found.Plaese provide a valid existing job ID."
+                return f"Job {job_id} was not found.Please provide a valid existing job ID."
 
             available_technicians = [
                 technician
@@ -133,13 +136,16 @@ Do not assign the technician. Only provide a recommendation.
         
         except KeyError as exc:
             return (
-                f"Unable to generate assignment suggestion for Job {job_id}: required data field is missing ({exc}).",
-                f"verify that the job data and check it contains all required fields")
+                f"Unable to generate assignment suggestion for Job {job_id}: required data field is missing ({exc})."
+                f"verify that the job data and check it contains all required fields"
+                )
         except TypeError as exc:
             return (
-                f"Unable to generate assignment suggestion for Job {job_id}: invalid data ({exc}).",
-                f"verify that the job data has the expected dictionary")
+                f"Unable to generate assignment suggestion for Job {job_id}: invalid data ({exc})."
+                f"verify that the job data has the expected dictionary"
+                )
         except Exception as exc:
             return ( 
-                f"Unable to generate assignment suggestion for Job {job_id}: an unexpected error occurred ({exc}).",
-                f"verify the job ID, job data and try again")
+                f"Unable to generate assignment suggestion for Job {job_id}: an unexpected error occurred ({exc})."
+                f"verify the job ID, job data and try again"
+                )

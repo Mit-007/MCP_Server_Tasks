@@ -3,7 +3,7 @@ from src.tasks_mcp_server.task_1.data import data as D
 
 def register_job_resources(mcp):
 
-    @mcp.resource("task-1://list_of_jobs", mime_type="application/json")
+    @mcp.resource("jobs://all", mime_type="application/json")
     def all_jobs():
         """give list of all jobs."""
         try:
@@ -21,7 +21,7 @@ def register_job_resources(mcp):
                 f"Suggestion: verify the job data and try again."
             )
 
-    @mcp.resource("task-1://list_of_open_jobs", mime_type="application/json")
+    @mcp.resource("jobs://open", mime_type="application/json")
     def open_jobs():
         """give list of all Open jobs."""
         try:

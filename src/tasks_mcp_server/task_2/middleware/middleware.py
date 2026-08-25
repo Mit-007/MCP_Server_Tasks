@@ -3,7 +3,6 @@ from fastmcp.server.dependencies import get_http_headers
 from starlette.exceptions import HTTPException
 from src.tasks_mcp_server.task_2.auth.token_auth import (verify_token,check_token_expiry)
 from src.tasks_mcp_server.task_2.auth.scope_auth import (get_required_scope,check_scope)
-from src.tasks_mcp_server.task_2.schemas.error_schemas import ErrorResponse
 from src.tasks_mcp_server.task_2.core.logger import logger
 import os
 
@@ -45,14 +44,23 @@ class AuthenticationMiddleware(Middleware):
                 )
  
                 if not authorization_token:
-                    transport_mode = str(os.getenv("TRANSPORT_TYPE")).strip()
+                    transport_mode = str(os.getenv("TRANSPORT_TYPE_JOB_SERVER")).strip().upper()
                     logger.info(f"transport type : {transport_mode}")
                     if transport_mode == "STDIO":
                         authorization_token = str(os.getenv("AUTH_TOKEN")).strip()
                         logger.info(f"auth_token from env: {authorization_token}")
+                        if not authorization_token:
+                            raise HTTPException(
+                                status_code=401,
+                                detail={
+                                    "error" : "missing Authetication Token in env for STDIO",
+                                    "code" : "MISSING_TOKEN_ENV",
+                                    "suggestion" : "Provide Authorization TOKEN in environment for STDIO transport",
+                                }
+                            )
                     else:
                         raise HTTPException(
-                            status_code=400,
+                            status_code=401,
                             detail={
                                 "error": "Missing authentication token",
                                 "code": "MISSING_TOKEN",

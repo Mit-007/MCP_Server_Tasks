@@ -4,6 +4,7 @@ from src.tasks_mcp_server.task_2.schemas.tool_output_schemas import JobMutationR
 from src.tasks_mcp_server.task_2.schemas.error_schemas import ErrorResponse
 from src.tasks_mcp_server.task_2.schemas.tool_input_schemas import (CreateJobInput,AssignJobInput,DeleteJobInput,UpdateJobInput,)
 from src.tasks_mcp_server.task_2.services.validation_services import (get_job,get_technician,)
+from src.tasks_mcp_server.task_2.core.logger import logger
 
 def register_write_tool(mcp):
 
@@ -52,7 +53,8 @@ def register_write_tool(mcp):
                 job=new_job,
             )
 
-        except Exception:
+        except Exception as e:
+            logger.error(f"Unexpected error in list_jobs: {str(e)}", exc_info=True)
             return ErrorResponse(
                 error="Failed to create job",
                 code="INTERNAL_ERROR",

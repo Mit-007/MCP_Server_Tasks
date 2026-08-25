@@ -1,5 +1,5 @@
 from typing import Union
-
+import json
 from src.tasks_mcp_server.task_2.data import data as D
 from src.tasks_mcp_server.task_2.schemas.error_schemas import ErrorResponse
 
@@ -7,17 +7,17 @@ from src.tasks_mcp_server.task_2.schemas.error_schemas import ErrorResponse
 def register_job_resources(mcp):
 
     @mcp.resource(
-        "task-1://list_of_jobs",
+        "jobs://all",
         mime_type="application/json",
     )
-    def all_jobs() -> Union[list, ErrorResponse]:
+    async def all_jobs() -> str:
         """Give list of all jobs."""
 
         try:
-            return D.jobs
+            return json.dumps(D.jobs)
 
         except AttributeError:
-            return ErrorResponse(
+            error = ErrorResponse(
                 error="Unable to retrieve all jobs: job data is unavailable",
                 code="JOB_DATA_UNAVAILABLE",
                 suggestion=(
@@ -25,9 +25,10 @@ def register_job_resources(mcp):
                     "and try again."
                 ),
             )
+            return json.dumps(error.model_dump())
 
         except Exception:
-            return ErrorResponse(
+            error = ErrorResponse(
                 error=(
                     "Unable to retrieve all jobs: "
                     "an unexpected error occurred"
@@ -37,24 +38,26 @@ def register_job_resources(mcp):
                     "Verify the job data and try again."
                 ),
             )
+            return json.dumps(error.model_dump())
 
 
     @mcp.resource(
-        "task-1://list_of_open_jobs",
+        "jobs://open",
         mime_type="application/json",
     )
-    def open_jobs() -> Union[list, ErrorResponse]:
+    async def open_jobs() -> str:
         """Give list of all open jobs."""
 
         try:
-            return [
+            open_jobs_list = [
                 job
                 for job in D.jobs
                 if job["status"] == "open"
             ]
+            return json.dumps(open_jobs_list)
 
         except KeyError:
-            return ErrorResponse(
+            error = ErrorResponse(
                 error=(
                     "Unable to retrieve open jobs: "
                     "required job field is missing"
@@ -65,9 +68,10 @@ def register_job_resources(mcp):
                     "the required status field."
                 ),
             )
+            return json.dumps(error.model_dump())
 
         except TypeError:
-            return ErrorResponse(
+            error = ErrorResponse(
                 error=(
                     "Unable to retrieve open jobs: "
                     "invalid job data"
@@ -78,9 +82,10 @@ def register_job_resources(mcp):
                     "dictionary structure."
                 ),
             )
+            return json.dumps(error.model_dump())
 
         except Exception:
-            return ErrorResponse(
+            error = ErrorResponse(
                 error=(
                     "Unable to retrieve open jobs: "
                     "an unexpected error occurred"
@@ -90,3 +95,4 @@ def register_job_resources(mcp):
                     "Verify the job data and try again."
                 ),
             )
+            return json.dumps(error.model_dump())

@@ -1,6 +1,7 @@
 from typing import Union
 from src.tasks_mcp_server.task_3.call_log_server.services.call_services import get_call 
 from src.tasks_mcp_server.task_3.call_log_server.schemas.error_schemas import ErrorResponse
+import json
 
 
 def register_prompts(mcp):
@@ -8,14 +9,14 @@ def register_prompts(mcp):
     @mcp.prompt()
     async def quality_review(
         call_id: str,
-    ) -> Union[str, ErrorResponse]:
+    ) -> str:  
         """Generate a quality-review prompt for a customer call."""
 
         try:
             call = get_call(call_id)
 
             if call is None:
-                return ErrorResponse(
+                error = ErrorResponse(
                     error=f"Call {call_id} was not found",
                     code="CALL_NOT_FOUND",
                     suggestion=(
@@ -23,14 +24,16 @@ def register_prompts(mcp):
                         "Use list_calls to find available calls."
                     ),
                 )
+                return json.dumps(error.model_dump())
 
             notes = call.get("notes", [])
 
             notes_text = "\n".join(
                 f"- {note['text']}"
                 for note in notes
-            )
+            ) if notes else "No notes available."
 
+            # ✓ FIXED: Use correct field names from data structure
             return f"""
 You are a customer support quality analyst.
 
@@ -40,15 +43,14 @@ information provided. Do not invent missing information.
 CALL
 ---
 Call ID: {call["call_id"]}
-Customer: {call["customer"]["name"]}
-Agent: {call["agent_name"]}
+Customer: {call["customer_name"]}
 Status: {call["status"]}
 Outcome: {call["outcome"]}
 Duration: {call["duration_seconds"]} seconds
 
 CALL NOTES
 ---
-{notes_text if notes_text else "No notes available."}
+{notes_text}
 
 Evaluate the call using these three dimensions.
 
@@ -98,15 +100,19 @@ Do not assume facts that are not present in the call data.
 """
 
         except ValueError:
-            return ErrorResponse(
+            # ✓ Return ErrorResponse as JSON string
+            error = ErrorResponse(
                 error="Invalid call ID",
                 code="INVALID_CALL_ID",
                 suggestion="Provide a valid call_id.",
             )
+            return json.dumps(error.model_dump())
 
-        except Exception:
-            return ErrorResponse(
+        except Exception as e:
+            # ✓ Return ErrorResponse as JSON string
+            error = ErrorResponse(
                 error="Failed to generate quality review prompt",
                 code="INTERNAL_ERROR",
                 suggestion="Please try again later.",
             )
+            return json.dumps(error.model_dump())

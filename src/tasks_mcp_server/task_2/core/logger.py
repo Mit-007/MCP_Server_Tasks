@@ -1,4 +1,7 @@
 import logging
+import os
+
+os.makedirs("logs", exist_ok=True)
 
 logging.basicConfig(
     filename="logs/job_server.log",

@@ -1,5 +1,5 @@
 from fastmcp import FastMCP
-from tasks_mcp_server.task_1.core.config import TRANSPORT_TYPE,TRANSPORT_PORT
+from src.tasks_mcp_server.task_1.core.config import TRANSPORT_TYPE,TRANSPORT_PORT
 from src.tasks_mcp_server.task_1.prompts import prompts 
 from src.tasks_mcp_server.task_1.resources import (job_resources, technicians_resources)
 from src.tasks_mcp_server.task_1.tools import (read_tool, write_tool)
@@ -17,7 +17,7 @@ mcp =FastMCP("Task-1")
 
 # Tools
 read_tool.register_read_tools(mcp)
-write_tool.register_write_tool(mcp)
+write_tool.register_write_tools(mcp)
 
 # resources
 job_resources.register_job_resources(mcp)

@@ -13,18 +13,19 @@ def register_resources(mcp):
     @mcp.resource("calls://recent/{n}",mime_type="application/json",)
     async def recent_calls(
         n: int,
-    ) -> Union[list, ErrorResponse]:
+    ) -> str:
         """Return the N most recent calls."""
 
         try:
             if n <= 0:
-                return ErrorResponse(
+                error = ErrorResponse(
                     error="Invalid number of calls requested",
                     code="INVALID_LIMIT",
                     suggestion=(
                         "Provide a positive number of calls to retrieve."
                     ),
                 )
+                return json.dumps(error.model_dump())
 
             sorted_calls = sorted(
                 D.calls,
@@ -37,7 +38,7 @@ def register_resources(mcp):
             return json.dumps(recent)
 
         except KeyError:
-            return ErrorResponse(
+            error = ErrorResponse(
                 error=(
                     "Unable to retrieve recent calls: "
                     "required call field is missing"
@@ -48,9 +49,10 @@ def register_resources(mcp):
                     "the required started_at field."
                 ),
             )
+            return json.dumps(error.model_dump())
 
         except TypeError:
-            return ErrorResponse(
+            error = ErrorResponse(
                 error=(
                     "Unable to retrieve recent calls: "
                     "invalid call data"
@@ -61,9 +63,10 @@ def register_resources(mcp):
                     "dictionary structure."
                 ),
             )
+            return json.dumps(error.model_dump())
 
         except AttributeError:
-            return ErrorResponse(
+            error = ErrorResponse(
                 error=(
                     "Unable to retrieve recent calls: "
                     "call data is unavailable"
@@ -74,9 +77,10 @@ def register_resources(mcp):
                     "available and try again."
                 ),
             )
+            return json.dumps(error.model_dump())
 
         except Exception:
-            return ErrorResponse(
+            error = ErrorResponse(
                 error=(
                     "Unable to retrieve recent calls: "
                     "an unexpected error occurred"
@@ -86,6 +90,7 @@ def register_resources(mcp):
                     "Verify the call data and try again."
                 ),
             )
+            return json.dumps(error.model_dump())
 
 
     # ============================================================
@@ -96,18 +101,19 @@ def register_resources(mcp):
         "calls://failed",
         mime_type="application/json",
     )
-    async def failed_calls() -> Union[list, ErrorResponse]:
+    async def failed_calls() -> str:
         """Return all calls with failed status."""
 
         try:
-            return [
+            failed = [
                 call
                 for call in D.calls
                 if call["status"] == "failed"
             ]
+            return json.dumps(failed)
 
         except KeyError:
-            return ErrorResponse(
+            error = ErrorResponse(
                 error=(
                     "Unable to retrieve failed calls: "
                     "required call status field is missing"
@@ -118,9 +124,10 @@ def register_resources(mcp):
                     "the required status field."
                 ),
             )
+            return json.dumps(error.model_dump())
 
         except TypeError:
-            return ErrorResponse(
+            error = ErrorResponse(
                 error=(
                     "Unable to retrieve failed calls: "
                     "invalid call data"
@@ -131,9 +138,10 @@ def register_resources(mcp):
                     "dictionary structure."
                 ),
             )
+            return json.dumps(error.model_dump())
 
         except AttributeError:
-            return ErrorResponse(
+            error = ErrorResponse(
                 error=(
                     "Unable to retrieve failed calls: "
                     "call data is unavailable"
@@ -144,9 +152,10 @@ def register_resources(mcp):
                     "available and try again."
                 ),
             )
+            return json.dumps(error.model_dump())
 
         except Exception:
-            return ErrorResponse(
+            error = ErrorResponse(
                 error=(
                     "Unable to retrieve failed calls: "
                     "an unexpected error occurred"
@@ -156,3 +165,4 @@ def register_resources(mcp):
                     "Verify the call data and try again."
                 ),
             )
+            return json.dumps(error.model_dump())

@@ -232,18 +232,18 @@ Both transports use the same underlying business logic, so choosing a transport 
 The server exposes **3 resources**:
 
 ```text
-task-1://list_of_jobs
-task-1://list_of_open_jobs
-task-1://available_technicians
+jobs://all
+jobs://open
+technicians://available
 ```
 
 ## Resource Overview
 
 | Resource URI | Purpose |
 |:---|:---|
-| `task-1://list_of_jobs` | Current list of all jobs |
-| `task-1://list_of_open_jobs` | Current list of open jobs |
-| `task-1://available_technicians` | Current list of available technicians |
+| `jobs://all` | Current list of all jobs |
+| `jobs://open` | Current list of open jobs |
+| `technicians://available` | Current list of available technicians |
 
 These resources provide structured access to the current in-memory state.
 

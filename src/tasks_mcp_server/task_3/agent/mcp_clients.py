@@ -1,26 +1,22 @@
 from langchain_mcp_adapters.client import MultiServerMCPClient
-
-SERVERS = {
-    "Task-2": {
-        "transport": "streamable_http",
-        "url": "http://localhost:3001/mcp",
-        "headers": {
-            "AUTH_TOKEN": "Bearer dddgN6MH20Kx9fjJ5W50JCDaKjpxsS1p",
-        },
-    },
-
-    "Task-3_call_log_server": {
-        "transport": "streamable_http",
-        "url": "http://localhost:3000/mcp",
-        "headers": {
-            "AUTH_TOKEN": "Bearer dddgN6MH20Kx9fjJ5W50JCDaKjpxsS1p",
-        },
-    },
-}
+from src.tasks_mcp_server.task_3.agent.core.server_config import SERVERS
+from src.tasks_mcp_server.task_3.agent.core.logger import logger
 
 async def get_mcp_servers_tools():
-    client = MultiServerMCPClient(SERVERS)
-    
-    tools = await client.get_tools()
+    try:
+        client = MultiServerMCPClient(SERVERS)
 
-    return tools
+        logger.info("Connected to MCP servers sucessfully.")
+
+        tools = await client.get_tools()
+
+        logger.info(f"Successfully loaded {len(tools)} tools from MCP servers")
+
+        return tools
+    
+    except ConnectionError as e:
+        logger.error(f"Failed to connect to MCP servers: {e}")
+        raise
+    except Exception as e:
+        logger.error(f"Failed to load MCP tools: {e}")
+        raise

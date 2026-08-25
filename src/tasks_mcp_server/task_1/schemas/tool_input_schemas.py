@@ -1,4 +1,4 @@
-from pydantic import BaseModel,Field
+from pydantic import BaseModel,Field 
 from enum import Enum
 from typing import Optional
 
@@ -12,6 +12,7 @@ class Priority(str, Enum):
 class JobStatus(str, Enum):
     OPEN = "open"
     ASSIGNED = "assigned"
+    IN_PROGRESS = "in_progress"
     COMPLETED = "completed"
     CANCELLED = "cancelled"
 
