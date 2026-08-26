@@ -79,6 +79,9 @@ async def main():
 
     while True:
 
+        print("\n\n------------------------------------------------------------------------------------------")
+        print("|                                Ask A Question                                          |")
+        print("------------------------------------------------------------------------------------------")
         question = input("\n👨 Enter your question: ")
 
         if question.lower() in ["exit", "quit"]:
@@ -184,7 +187,7 @@ async def main():
                         )
 
 
-                        print(f"🔧 Tool Result: {result}")
+                        print(f"📤 Tool Result: {result}\n")
 
 
                         # Log tool call

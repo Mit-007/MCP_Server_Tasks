@@ -302,7 +302,6 @@ class AuthenticationMiddleware(Middleware):
             # --------------------------------------------------
             # 10. Authorized
             # --------------------------------------------------
-            logger.info("flag !")
             logger.info(
                 "Authorization successful "
                 "(method=%s, tool=%s, scope=%s)",
@@ -346,7 +345,6 @@ class AuthenticationMiddleware(Middleware):
             return method
             
         except AttributeError as e:
-            # ADDED: Handle missing method attribute
             raise ValueError(f"Failed to extract method from context: {str(e)}")
         except Exception as e:
             raise ValueError(f"Unexpected error extracting method: {str(e)}")
@@ -363,7 +361,6 @@ class AuthenticationMiddleware(Middleware):
             return None
  
         try:
-            # ADDED: Safely extract tool name with error handling
             if not hasattr(context, 'message'):
                 raise AttributeError("Context has no message attribute")
                 
@@ -380,10 +377,8 @@ class AuthenticationMiddleware(Middleware):
             return tool_name
             
         except AttributeError as e:
-            # ADDED: Handle missing attributes gracefully
             logger.error(f"Error extracting tool name: {str(e)}")
             return None
         except Exception as e:
-            # ADDED: Handle unexpected errors
             logger.error(f"Unexpected error extracting tool name: {str(e)}")
             return None

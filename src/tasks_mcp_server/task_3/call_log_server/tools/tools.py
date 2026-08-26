@@ -17,6 +17,7 @@ from src.tasks_mcp_server.task_3.call_log_server.schemas.error_schemas import Er
 from src.tasks_mcp_server.task_3.call_log_server.schemas.call_schemas import (
     CallStatus,
 )
+from src.tasks_mcp_server.task_3.call_log_server.core.logger import logger
 from fastmcp import Context
 
 def register_tools(mcp):
@@ -571,11 +572,18 @@ def register_tools(mcp):
 
     Do not invent information that is not present in the transcript.
     """
-
-            result = await ctx.sample(
-                messages= prompt,
-                max_tokens=500,
-            )  
+            try :
+                result = await ctx.sample(
+                    messages= prompt,
+                    max_tokens=500,
+                )  
+            except:
+                logger.warning("Sampling not supported by client")
+                return ErrorResponse(
+                    error="client does not support sampling",
+                    code="CLIENT_NOT_SUPPORT",
+                    suggestion="Avoid sampling for this client",
+                )
 
             summary = result.result
 
@@ -595,10 +603,8 @@ def register_tools(mcp):
             )
 
         except Exception as e:
-            print(f"Error generating call summary: {e}")
-
             return ErrorResponse(
-                error="Failed to generate call summary",
+                error=f"Failed to generate call summary {e}",
                 code="INTERNAL_ERROR",
                 suggestion="Please try again later.",
             )

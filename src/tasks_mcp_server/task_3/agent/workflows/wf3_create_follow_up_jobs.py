@@ -43,10 +43,8 @@ async def create_follow_up_jobs_workflow(
 
         text = calls_result[0]["text"]
 
-        # Convert JSON string → Python dict
         text_json = json.loads(text)
 
-        # Fetch pagination information
         has_more = text_json["has_more"]
         next_cursor = text_json["next_cursor"]
         data = text_json["data"]

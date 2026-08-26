@@ -7,6 +7,8 @@ class Priority(str, Enum):
     LOW = "low"
     MEDIUM = "medium"
     HIGH = "high"
+    NORMAL = "normal"
+    URGENT = "urgent"
     CRITICAL = "critical"
 
 class JobStatus(str, Enum):
@@ -16,18 +18,20 @@ class JobStatus(str, Enum):
     COMPLETED = "completed"
     CANCELLED = "cancelled"
 
+
+# for craete_job_tool
 class CreateJobInput(BaseModel):
     id: str = Field(..., description="Unique identifier for the job", min_length=3)
     title: str = Field(..., description="Job title", min_length=1, max_length=200)
     description: str = Field(..., description="Detailed job description", min_length=1, max_length=2000)
     priority: Priority = Field(..., description="Job priority level")
 
-
+# for Assign_job_tool
 class AssignJobInput(BaseModel):
     job_id: str = Field(..., description="ID of the job to assign", min_length=3)
     technician_id: str = Field(..., description="ID of the technician to assign", min_length=3)
 
-
+# for update_job_tool
 class UpdateJobInput(BaseModel):
     job_id: str = Field(..., description="ID of the job to update", min_length=3)
     title: Optional[str] = Field(None, description="Updated job title", min_length=1, max_length=200)
@@ -36,6 +40,6 @@ class UpdateJobInput(BaseModel):
     status: Optional[JobStatus] = Field(None,description="Updated job status",)
     technician_id: Optional[str] = Field(None, description="ID of assigned technician", min_length=3)
 
-
+# for delete_job_tool
 class DeleteJobInput(BaseModel):
     job_id: str = Field(..., description="ID of the job to delete", min_length=3)

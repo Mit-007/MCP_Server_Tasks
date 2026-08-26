@@ -216,33 +216,32 @@ def register_write_tool(mcp):
         """Delete a job from the system."""
 
         try:
-            for job in D.jobs:
-                if job["id"] == data.job_id:
+            job_index = next(
+                (i for i, job in enumerate(D.jobs) if job["id"] == data.job_id),
+                None
+            )
+            
+            if job_index is None:
+                return JobMutationResponse(
+                    success=False,
+                    message=f"Job {data.job_id} not found. Call list_jobs to see valid job IDs and try again.",
+                    job=None,
+                )
+            
+            job = D.jobs[job_index]
+            
+            # Restore technician availability
+            if job["technician_id"] is not None:
+                technician = get_technician(job["technician_id"])
+                if technician is not None:
+                    technician["available"] = True
 
-                    # Free up the technician if job was assigned
-                    if job["technician_id"] is not None:
-                        technician = get_technician(
-                            job["technician_id"]
-                        )
-
-                        if technician is not None:
-                            technician["available"] = True
-
-                    D.jobs.remove(job)
-
-                    return JobMutationResponse(
-                        success=True,
-                        message=f"Job {data.job_id} deleted successfully",
-                        job=job,
-                    )
-
-            return ErrorResponse(
-                error=f"Job {data.job_id} not found",
-                code="JOB_NOT_FOUND",
-                suggestion=(
-                    "Call list_jobs to see valid job IDs "
-                    "and try again."
-                ),
+            D.jobs.pop(job_index)
+            
+            return JobMutationResponse(
+                success=True,
+                message=f"Job {data.job_id} deleted successfully",
+                job=job,
             )
 
         except Exception:

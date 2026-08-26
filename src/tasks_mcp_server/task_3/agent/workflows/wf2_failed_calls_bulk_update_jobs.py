@@ -44,20 +44,13 @@ async def match_failed_calls_jobs_update_workflow(
         )
         text = failed_calls_result[0]["text"]
         
-        # 2. Convert JSON string → Python dict
         text_json = json.loads(text)
     
-        # 3. Fetch pagination information
         has_more = text_json["has_more"]
         next_cursor = text_json["next_cursor"]
         data = text_json["data"]
-        
-        print("current_data_size:", len(data))
-        print("has_more:", has_more)
-        print("next_cursor:", next_cursor)
 
         failed_call_logs.extend(data)
-        print("all_data_list_size:", len(failed_call_logs))
 
         if has_more == False :
             break
@@ -168,20 +161,13 @@ Return the result using the required structured output.
         )
         text = open_jobs_result[0]["text"]
         
-        # 2. Convert JSON string → Python dict
         text_json = json.loads(text)
     
-        # 3. Fetch pagination information
         has_more = text_json["has_more"]
         next_cursor = text_json["next_cursor"]
         data = text_json["data"]
-        
-        print("current_data_size:", len(data))
-        print("has_more:", has_more)
-        print("next_cursor:", next_cursor)
 
         open_jobs_list.extend(data)
-        print("all_data_list_size:", len(open_jobs_list))
 
         if has_more == False :
             break
@@ -195,9 +181,6 @@ Return the result using the required structured output.
     updated_jobs = []
 
     for job in open_jobs_list:
-        print("------------------------------------------------------------")
-        print(job)
-        print("------------------------------------------------------------")
 
         job_id = job["id"]
 

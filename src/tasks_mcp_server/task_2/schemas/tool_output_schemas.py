@@ -15,23 +15,23 @@ class Technician(BaseModel):
     available: bool
     skills: list[str]
 
+#  pagination output 
 class Pagination(BaseModel):
     next_cursor: str | None = None
     has_more: bool
     total_count: int
 
+# list of jobs_tool
 class JobsOutput(BaseModel):
     data: list[Job]
-    next_cursor: str | None
-    has_more: bool
-    total_count: int
+    pagination: Pagination
 
+# list of technicians_tool
 class TechniciansOutput(BaseModel):
     data: list[Technician]
-    next_cursor: str | None
-    has_more: bool
-    total_count: int
+    pagination: Pagination
 
+# response structure for write tools
 class JobMutationResponse(BaseModel):
     success: bool
     message: str

@@ -1,254 +1,131 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<evaluation name="demo_evaluation" version="1.0">
-  <metadata>
-    <title>Demo Evaluation for Multi-Server MCP Agent</title>
-    <description>
-      Ten evaluation questions for testing an MCP agent across the job server and call-log server.
-      Questions are split evenly between the two servers and each one requires at least three tool calls
-      to answer correctly.
-    </description>
-    <requirements>
-      <requirement>5 questions must target the job server</requirement>
-      <requirement>5 questions must target the call-log server</requirement>
-      <requirement>Each question must require at least 3 tool calls</requirement>
-    </requirements>
-  </metadata>
+<EvaluationSuite>
+  <Metadata>
+    <Title>Task 3 - Multi-Server MCP Agent Evaluation Suite (Compact)</Title>
+    <TotalQuestions>10</TotalQuestions>
+    <DateCreated>2026-08-25</DateCreated>
+  </Metadata>
 
-  <section name="job_server">
-    <question id="JQ1" server="job_server" min_tool_calls="3">
-      <prompt>
-        Find the total number of jobs, the number of open jobs, and the number of available technicians.Then explain whether there are enough available technicians to cover all open jobs right now.
-      </prompt>
-      <tool_expectation>
-        <tool>job_server_list_jobs</tool>
-        <tool>job_server_open_jobs</tool>
-        <tool>job_server_get_available_technicians</tool>
-      </tool_expectation>
-    </question>
+  <question id="JS-Q1" server="job_server" min_tool_calls="4">
+    <title>Create High-Priority Job, Assign to Technician, Verify Assignment</title>
+    <description>A customer reports a critical system outage. You need to: 1. Create a high-priority job for the issue, 2. Find an available technician and assign them, 3. Verify the assignment was successful and confirm job status</description>
+    <tool_expectation>
+      <tool>job_server_create_job</tool>
+      <tool>job_server_get_available_technicians</tool>
+      <tool>job_server_assign_job</tool>
+    </tool_expectation>
+  </question>
 
-    <question id="JQ2" server="job_server" min_tool_calls="3">
-      <prompt>
-        Identify the first three of jobs, the second three of jobs,the third three jobs, and the total number of jobs.Use the pagination metadata to explain how many jobs remain after the first page.
-      </prompt>
-      <tool_expectation>
-        <tool>job_server_list_jobs</tool>
-        <tool>job_server_list_jobs</tool>
-        <tool>job_server_list_jobs</tool>
-      </tool_expectation>
-    </question>
+  <question id="JS-Q2" server="job_server" min_tool_calls="4">
+    <title>List Open Jobs, Filter High Priority, Update Status, Verify Changes</title>
+    <description>Operational review needed: 1. List all open jobs using pagination, 2. Identify high-priority jobs in the results, 3. Update one high-priority job's status to in_progress, 4. Re-list jobs to confirm the status change</description>
+    <tool_expectation>
+      <tool>job_server_open_jobs</tool>
+      <tool>job_server_update_job</tool>
+      <tool>job_server_open_jobs</tool>
+    </tool_expectation>
+  </question>
 
-    <question id="JQ3" server="job_server" min_tool_calls="3">
-      <prompt>
-        Compare the open jobs list with the available technicians list.Report one open job that appears most urgent and name a technician who could potentially handle it.Justify the choice using data from both lists.
-      </prompt>
-      <tool_expectation>
-        <tool>job_server_open_jobs</tool>
-        <tool>job_server_get_available_technicians</tool>
-        <tool>job_server_list_jobs</tool>
-      </tool_expectation>
-    </question>
+  <question id="JS-Q3" server="job_server" min_tool_calls="4">
+    <title>Create Job, Update Priority, List Paginated Results, Get Statistics</title>
+    <description>Performance analysis task: 1. Create a new job with initial priority, 2. Update its priority to critical, 3. Fetch all jobs using pagination to locate the new job, 4. Get overall job statistics to understand current load</description>
+    <tool_expectation>
+      <tool>job_server_create_job</tool>
+      <tool>job_server_update_job</tool>
+      <tool>job_server_list_jobs</tool>
+      <tool>job_server_get_stats</tool>
+    </tool_expectation>
+  </question>
 
-    <question id="JQ4" server="job_server" min_tool_calls="3">
-      <prompt>
-        Inspect the current jobs and technicians, then determine how many jobs are still unassigned.After that, identify whether any technician is currently available and name the first available technician if one exists.
-      </prompt>
-      <tool_expectation>
-        <tool>job_server_list_jobs</tool>
-        <tool>job_server_open_jobs</tool>
-        <tool>job_server_get_available_technicians</tool>
-      </tool_expectation>
-    </question>
+  <question id="JS-Q4" server="job_server" min_tool_calls="6">
+    <title>Get Statistics, Identify Gaps, Fetch Open Jobs, Assign Multiple</title>
+    <description>Resource allocation task: 1. List open, unassigned jobs, 2. Fetch available technicians, 3. Assign multiple open jobs to available technicians, 4. Verify assignments by checking updated job details</description>
+    <tool_expectation>
+      <tool>job_server_open_jobs</tool>
+      <tool>job_server_get_available_technicians</tool>
+      <tool>job_server_assign_job</tool>
+      <tool>job_server_assign_job</tool>
+    </tool_expectation>
+  </question>
 
-    <question id="JQ5" server="job_server" min_tool_calls="3">
-      <prompt>
-        Use pagination-aware queries to find the total job count and verify whether the final page is empty, partial, or full.Explain your conclusion using at least two page fetches plus the metadata returned by the list tool.
-      </prompt>
-      <tool_expectation>
-        <tool>job_server_list_jobs</tool>
-        <tool>job_server_list_jobs</tool>
-        <tool>job_server_list_jobs</tool>
-      </tool_expectation>
-    </question>
+  <question id="JS-Q5" server="job_server" min_tool_calls="7">
+    <title>Create Multiple Jobs, Paginate Results, Update, Delete, Verify</title>
+    <description>Batch processing task: 1. Create three new jobs for different priorities, 2. List all jobs and verify pagination works, 3. Update one job's status, 4. Delete a completed job, 5. Re-list jobs to confirm deletion, 6. Get statistics to verify counts</description>
+    <tool_expectation>
+      <tool>job_server_create_job</tool>
+      <tool>job_server_create_job</tool>
+      <tool>job_server_create_job</tool>
+      <tool>job_server_list_jobs</tool>
+      <tool>job_server_update_job</tool>
+      <tool>job_server_delete_job</tool>
+      <tool>job_server_list_jobs</tool>
+      <tool>call_log_server_get_stats</tool>
+    </tool_expectation>
+  </question>
 
-    <question id="JQ6" server="job_server" min_tool_calls="3">
-      <prompt>
-        Perform a difficult consistency check across the job dataset: verify the total number of jobs, compare it to the number of open jobs, and compare both against available technicians.Then determine whether the current job workflow appears balanced or overloaded, and explain why.
-      </prompt>
-      <tool_expectation>
-        <tool>job_server_list_jobs</tool>
-        <tool>job_server_open_jobs</tool>
-        <tool>job_server_get_available_technicians</tool>
-      </tool_expectation>
-    </question>
+  <question id="CL-Q1" server="call_log_server" min_tool_calls="5">
+    <title>Log Call, Add Notes, Retrieve Call with Notes, Generate Quality Review</title>
+    <description>Customer service workflow: 1. Log a new customer call, 2. Add call note linking to a job ID, 3. Retrieve the call details, 4. Retrieve all notes for the call</description>
+    <tool_expectation>
+      <tool>call_log_server_log_call</tool>
+      <tool>call_log_server_add_call_note</tool>
+      <tool>call_log_server_get_call</tool>
+      <tool>call_log_server_list_notes_for_call</tool>
+    </tool_expectation>
+  </question>
 
-    <question id="JQ7" server="job_server" min_tool_calls="3">
-      <prompt>
-        Run a pagination stress check on the job list by fetching the beginning, middle, and end of the dataset.
-        Use the returned cursors to explain whether any page boundary produces an empty, partial, or full page.
-      </prompt>
-      <tool_expectation>
-        <tool>job_server_list_jobs</tool>
-        <tool>job_server_list_jobs</tool>
-        <tool>job_server_list_jobs</tool>
-      </tool_expectation>
-    </question>
+  <question id="CL-Q2" server="call_log_server" min_tool_calls="6">
+    <title>Get Statistics, List Failed Calls, Extract Job References, Update Outcomes</title>
+    <description>Quality assurance analysis: 1. Get call statistics to understand current state, 2. List all failed calls with pagination, 3. Extract job IDs from call notes, 4. For failed calls, update their outcomes to escalated, 5. Verify updated outcomes in follow-up queries</description>
+    <tool_expectation>
+      <tool>call_log_server_get_stats</tool>
+      <tool>call_log_server_list_calls_by_status</tool>
+      <tool>call_log_server_list_notes_for_call</tool>
+      <tool>call_log_server_update_call_outcome</tool>
+      <tool>call_log_server_update_call_outcome</tool>
+      <tool>call_log_server_get_call</tool>
+    </tool_expectation>
+  </question>
 
-    <question id="JQ8" server="job_server" min_tool_calls="3">
-      <prompt>
-        Identify the most constrained technician situation by comparing the full technician list, the available technician list, and the open jobs list.
-        Then explain whether the server currently has enough active capacity to absorb one additional urgent job.
-      </prompt>
-      <tool_expectation>
-        <tool>job_server_list_technicians</tool>
-        <tool>job_server_get_available_technicians</tool>
-        <tool>job_server_open_jobs</tool>
-      </tool_expectation>
-    </question>
+  <question id="CL-Q3" server="call_log_server" min_tool_calls="6">
+    <title>Log Call, Add Multiple Notes, Retrieve All Notes, Update Outcome, Verify</title>
+    <description>Call documentation workflow: 1. Log a new customer call, 2. Add first note with call details, 3. Add second note with technician assignment, 4. List all notes for the call, 5. Update call outcome based on findings, 6. Retrieve call to verify final state</description>
+    <tool_expectation>
+      <tool>call_log_server_log_call</tool>
+      <tool>call_log_server_add_call_note</tool>
+      <tool>call_log_server_add_call_note</tool>
+      <tool>call_log_server_list_notes_for_call</tool>
+      <tool>call_log_server_update_call_outcome</tool>
+      <tool>call_log_server_get_call</tool>
+    </tool_expectation>
+  </question>
 
-    <question id="JQ9" server="job_server" min_tool_calls="3">
-      <prompt>
-        Detect a potentially risky operational pattern in the job system by comparing open jobs, all jobs, and available technicians.
-        Your answer should identify whether the current state suggests a backlog, a staffing shortage, or neither, with evidence.
-      </prompt>
-      <tool_expectation>
-        <tool>job_server_open_jobs</tool>
-        <tool>job_server_list_jobs</tool>
-        <tool>job_server_get_available_technicians</tool>
-      </tool_expectation>
-    </question>
+  <question id="CL-Q4" server="call_log_server" min_tool_calls="7">
+    <title>List Calls by Status, Fetch Recent Calls, Add Notes, Generate Quality Reviews</title>
+    <description>Quality assurance review: 1. List all pending calls, 2. Fetch details on the 3 most recent pending calls, 3. Add notes to each call with status assessment, 4. Generate quality review prompts for each, 5. Collect and aggregate the reviews</description>
+    <tool_expectation>
+      <tool>call_log_server_list_calls_by_status</tool>
+      <tool>call_log_server_get_call</tool>
+      <tool>call_log_server_add_call_note</tool>
+      <tool>call_log_server_get_call</tool>
+      <tool>call_log_server_add_call_note</tool>
+      <tool>call_log_server_get_call_summary</tool>
+      <tool>call_log_server_get_call_summary</tool>
+    </tool_expectation>
+  </question>
 
-    <question id="JQ10" server="job_server" min_tool_calls="3">
-      <prompt>
-        Build a compact operational snapshot of the job server by independently checking the total job count, the open job count, and the available technician count.
-        Then explain the operational state in one sentence that is supported by those three checks.
-      </prompt>
-      <tool_expectation>
-        <tool>job_server_list_jobs</tool>
-        <tool>job_server_open_jobs</tool>
-        <tool>job_server_get_available_technicians</tool>
-      </tool_expectation>
-    </question>
-  </section>
+  <question id="CL-Q5" server="call_log_server" min_tool_calls="7">
+    <title>Cross-Server: Log Call, Link to Job, Add Notes, Generate Review, Verify Consistency</title>
+    <description>Integrated customer service workflow: 1. Log a customer call with transcript, 2. Create associated job in job server (cross-server), 3. Add call note linking to the job ID, 4. Retrieve call with all annotations, 5. Retrieve job to verify bidirectional linking, 6. Generate quality review for the call, 7. Verify consistency between servers</description>
+    <tool_expectation>
+      <tool>call_log_server_log_call</tool>
+      <tool>job_server_create_job</tool>
+      <tool>call_log_server_add_call_note</tool>
+      <tool>call_log_server_get_call</tool>
+      <tool>job_server_get_job</tool>
+      <tool>call_log_server_list_notes_for_call</tool>
+      <tool>call_log_server_get_call_summary</tool>
+    </tool_expectation>
+  </question>
 
-  <section name="call_log_server">
-    <question id="CQ1" server="call_log_server" min_tool_calls="3">
-      <prompt>
-        Find the total number of call logs, the number of failed calls, and the number of pending calls.
-        Then summarize whether failed calls are more common than pending calls.
-      </prompt>
-      <tool_expectation>
-        <tool>call_log_server_list_calls</tool>
-        <tool>call_log_server_list_calls_by_status</tool>
-        <tool>call_log_server_get_stats</tool>
-      </tool_expectation>
-    </question>
-
-    <question id="CQ2" server="call_log_server" min_tool_calls="3">
-      <prompt>
-        Retrieve the first page of call logs, the second page of call logs, and the total number of logs.
-        Use the cursor information to explain how many records remain after the first page.
-      </prompt>
-      <tool_expectation>
-        <tool>call_log_server_list_calls</tool>
-        <tool>call_log_server_list_calls</tool>
-        <tool>call_log_server_list_calls</tool>
-      </tool_expectation>
-    </question>
-
-    <question id="CQ3" server="call_log_server" min_tool_calls="3">
-      <prompt>
-        Inspect the call logs and find one failed call and one pending call.
-        Explain the difference between the two and identify the customer names involved.
-      </prompt>
-      <tool_expectation>
-        <tool>call_log_server_list_calls_by_status</tool>
-        <tool>call_log_server_list_calls_by_status</tool>
-        <tool>call_log_server_get_stats</tool>
-      </tool_expectation>
-    </question>
-
-    <question id="CQ4" server="call_log_server" min_tool_calls="3">
-      <prompt>
-        Use the call log server to determine which agent handled the most calls and which customer appears most frequently.
-        Then verify your conclusion by checking at least two different call-log views.
-      </prompt>
-      <tool_expectation>
-        <tool>call_log_server_list_calls</tool>
-        <tool>call_log_server_list_calls_by_status</tool>
-        <tool>call_log_server_get_stats</tool>
-      </tool_expectation>
-    </question>
-
-    <question id="CQ5" server="call_log_server" min_tool_calls="3">
-      <prompt>
-        Determine whether the call-log dataset contains more resolved calls or unresolved calls.
-        Support your answer with a statistics call plus at least two filtered or paginated list calls.
-      </prompt>
-      <tool_expectation>
-        <tool>call_log_server_get_stats</tool>
-        <tool>call_log_server_list_calls</tool>
-        <tool>call_log_server_list_calls_by_status</tool>
-      </tool_expectation>
-    </question>
-
-    <question id="CQ6" server="call_log_server" min_tool_calls="3">
-      <prompt>
-        Perform a difficult dataset audit on the call logs by comparing total logs, failed logs, and pending logs.
-        Then determine whether the call center is currently trending toward resolution or escalation.
-      </prompt>
-      <tool_expectation>
-        <tool>call_log_server_get_stats</tool>
-        <tool>call_log_server_list_calls</tool>
-        <tool>call_log_server_list_calls_by_status</tool>
-      </tool_expectation>
-    </question>
-
-    <question id="CQ7" server="call_log_server" min_tool_calls="3">
-      <prompt>
-        Run a pagination stress check on the call-log list by fetching the first page, a middle page, and a final page.
-        Explain whether the cursor progression shows a clean boundary or an edge case that could confuse a naive agent.
-      </prompt>
-      <tool_expectation>
-        <tool>call_log_server_list_calls</tool>
-        <tool>call_log_server_list_calls</tool>
-        <tool>call_log_server_list_calls</tool>
-      </tool_expectation>
-    </question>
-
-    <question id="CQ8" server="call_log_server" min_tool_calls="3">
-      <prompt>
-        Identify the strongest imbalance in the call-log server by comparing the statistics view, the full call list, and a filtered status view.
-        State whether the imbalance comes from too many failed calls, too many pending calls, or neither.
-      </prompt>
-      <tool_expectation>
-        <tool>call_log_server_get_stats</tool>
-        <tool>call_log_server_list_calls</tool>
-        <tool>call_log_server_list_calls_by_status</tool>
-      </tool_expectation>
-    </question>
-
-    <question id="CQ9" server="call_log_server" min_tool_calls="3">
-      <prompt>
-        Infer which customer or call pattern should be prioritized next by comparing the most recent call entries, the filtered pending set, and the overall statistics.
-        Your answer must justify the priority decision using all three views.
-      </prompt>
-      <tool_expectation>
-        <tool>call_log_server_list_calls</tool>
-        <tool>call_log_server_list_calls_by_status</tool>
-        <tool>call_log_server_get_stats</tool>
-      </tool_expectation>
-    </question>
-
-    <question id="CQ10" server="call_log_server" min_tool_calls="3">
-      <prompt>
-        Create an operational snapshot for the call-log server by separately checking total volume, failure volume, and pending volume.
-        Then explain in one sentence whether the server appears stable, degraded, or overloaded.
-      </prompt>
-      <tool_expectation>
-        <tool>call_log_server_get_stats</tool>
-        <tool>call_log_server_list_calls</tool>
-        <tool>call_log_server_list_calls_by_status</tool>
-      </tool_expectation>
-    </question>
-  </section>
-</evaluation>
+</EvaluationSuite>

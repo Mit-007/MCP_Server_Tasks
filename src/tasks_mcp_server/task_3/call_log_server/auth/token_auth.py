@@ -182,8 +182,7 @@ def verify_token(authorization: str | None,) -> tuple[dict | None, str | None]:
         if not isinstance(token_info, dict):
             logger.error(f"Invalid token_info structure: expected dict, got {type(token_info)}")
             return None, "Token data is corrupted"
- 
-        logger.info("Token verification successful")
+
         return token_info, None
  
     except Exception as e:

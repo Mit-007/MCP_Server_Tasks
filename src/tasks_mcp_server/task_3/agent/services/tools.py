@@ -22,9 +22,9 @@ async def get_tools():
         tool_by_name[tool.name] = tool
     
     # Step 2: Create workflow tools registry (pass MCP tools)
-    print("\n" + "="*60)
+    print("\n" + "="*30)
     print("Loading Workflow Tools...")
-    print("="*60 + "\n")
+    print("="*30 + "\n")
     
     workflow_registry = WorkflowToolsRegistry(tool_by_name)
     workflow_tools = workflow_registry.get_workflow_tools()
@@ -36,9 +36,9 @@ async def get_tools():
         tool_by_name[wf_name] = wf_tool
     
     # Step 3: Combine all tools
-    print("\n" + "="*60)
+    print("\n" + "="*30)
     print("Tool Summary")
-    print("="*60)
+    print("="*30)
     print(f"  MCP Tools:      {len(mcp_tools)}")
     print(f"  Workflow Tools: {len(workflow_tools)}")
     print(f"  Total:          {len(tool_by_name)}\n")

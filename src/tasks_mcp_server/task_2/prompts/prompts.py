@@ -1,6 +1,4 @@
-from typing import Union
 import json
-
 from src.tasks_mcp_server.task_2.data import data as D
 from src.tasks_mcp_server.task_2.schemas.error_schemas import ErrorResponse
 from src.tasks_mcp_server.task_2.services.validation_services import get_job

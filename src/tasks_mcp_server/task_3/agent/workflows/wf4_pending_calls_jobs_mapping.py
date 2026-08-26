@@ -45,10 +45,8 @@ async def pending_calls_jobs_mapping_workflow(
 
         text = pending_calls_result[0]["text"]
 
-        # Convert JSON string → Python dict
         text_json = json.loads(text)
 
-        # Fetch pagination information
         has_more = text_json["has_more"]
         next_cursor = text_json["next_cursor"]
         data = text_json["data"]
@@ -215,14 +213,6 @@ Return the result using the required structured output format.
                     "result": create_result,
                 }
             )
-
-            print("------------------------------------------------------------")
-            print(f"Job Created: {job_id}")
-            print(f"Title: {job_title}")
-            print(f"Call: {call_id} -> {customer_name}")
-            print(f"Priority: {priority}")
-            print(f"Reasoning: {reasoning}")
-            print("------------------------------------------------------------")
 
         except Exception as e:
             logger.error(

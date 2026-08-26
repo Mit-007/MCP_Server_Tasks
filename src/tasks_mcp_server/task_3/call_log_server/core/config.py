@@ -14,5 +14,3 @@ if TRANSPORT_TYPE == "HTTP":
         TRANSPORT_PORT = int(port_str)
     except ValueError:
         raise ValueError(f"TRANSPORT_PORT must be a valid integer, got: {port_str}")
-
-# AUTH_TOKEN = os.getenv("AUTH_TOKEN")

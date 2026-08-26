@@ -1,4 +1,3 @@
-from typing import Union
 import json
 from src.tasks_mcp_server.task_3.call_log_server.data import calls_data as D
 from src.tasks_mcp_server.task_3.call_log_server.schemas.error_schemas import ErrorResponse

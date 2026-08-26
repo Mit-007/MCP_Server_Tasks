@@ -42,9 +42,11 @@ def register_read_tools(mcp):
 
             return TS.JobsOutput(
                 data=items,
+                pagination=TS.Pagination(
                 next_cursor=next_cursor,
                 has_more=has_more,
                 total_count=total_count,
+                ),
             )
 
         except ValueError:
@@ -98,9 +100,11 @@ def register_read_tools(mcp):
 
             return TS.TechniciansOutput(
                 data=items,
-                next_cursor=next_cursor,
-                has_more=has_more,
-                total_count=total_count,
+                pagination=TS.Pagination(
+                    next_cursor=next_cursor,
+                    has_more=has_more,
+                    total_count=total_count,
+                ),
             )
 
         except ValueError:
@@ -159,9 +163,11 @@ def register_read_tools(mcp):
 
             return TS.TechniciansOutput(
                 data=items,
-                next_cursor=next_cursor,
-                has_more=has_more,
-                total_count=total_count,
+                pagination=TS.Pagination(
+                    next_cursor=next_cursor,
+                    has_more=has_more,
+                    total_count=total_count,
+                ),
             )
 
         except ValueError:
@@ -220,9 +226,11 @@ def register_read_tools(mcp):
 
             return TS.JobsOutput(
                 data=items,
-                next_cursor=next_cursor,
-                has_more=has_more,
-                total_count=total_count,
+                pagination=TS.Pagination(
+                    next_cursor=next_cursor,
+                    has_more=has_more,
+                    total_count=total_count,
+                ),
             )
 
         except ValueError:

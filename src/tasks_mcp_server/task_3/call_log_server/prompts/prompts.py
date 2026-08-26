@@ -1,4 +1,3 @@
-from typing import Union
 from src.tasks_mcp_server.task_3.call_log_server.services.call_services import get_call 
 from src.tasks_mcp_server.task_3.call_log_server.schemas.error_schemas import ErrorResponse
 import json
@@ -33,7 +32,6 @@ def register_prompts(mcp):
                 for note in notes
             ) if notes else "No notes available."
 
-            # ✓ FIXED: Use correct field names from data structure
             return f"""
 You are a customer support quality analyst.
 
@@ -100,7 +98,6 @@ Do not assume facts that are not present in the call data.
 """
 
         except ValueError:
-            # ✓ Return ErrorResponse as JSON string
             error = ErrorResponse(
                 error="Invalid call ID",
                 code="INVALID_CALL_ID",
@@ -109,7 +106,6 @@ Do not assume facts that are not present in the call data.
             return json.dumps(error.model_dump())
 
         except Exception as e:
-            # ✓ Return ErrorResponse as JSON string
             error = ErrorResponse(
                 error="Failed to generate quality review prompt",
                 code="INTERNAL_ERROR",

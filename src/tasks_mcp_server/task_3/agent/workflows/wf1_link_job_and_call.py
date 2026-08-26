@@ -1,7 +1,6 @@
 from src.tasks_mcp_server.task_3.agent.services.llm import llm
 from src.tasks_mcp_server.task_3.agent.core.logger import logger
 from src.tasks_mcp_server.task_3.agent.schemas.workflow_schemas import WorkflowLLmOutput
-from src.tasks_mcp_server.task_3.agent.schemas.workflows_tools_schemas import LinkJobAndCallInput
 from langchain.tools import tool
 
 @tool
@@ -79,9 +78,6 @@ Only prepare arguments for the call logging tool.
         error_msg = f"LLM failed to process call log prompt: {str(e)}"
         logger.error(error_msg)
         return f"Error: {error_msg}"
-
-    print("CALL LOG LLM RESPONSE:")
-    print(response)
 
     if not response.next:
         return "call log not created !!"
@@ -169,9 +165,6 @@ Only prepare arguments for the job creation tool.
         error_msg = f"LLM failed to process job creation prompt: {str(e)}"
         logger.error(error_msg)
         return f"Error: {error_msg}"
-
-    print("JOB LLM RESPONSE:")
-    print(response)
 
     if not response.next:
         return "job not created !!"
@@ -266,9 +259,6 @@ Only prepare arguments for the call-note tool.
         error_msg = f"LLM failed to process link note prompt: {str(e)}"
         logger.error(error_msg)
         return f"Error: {error_msg}"
-
-    print("LINK NOTE LLM RESPONSE:")
-    print(response)
 
     if not response.next:
         return "call note not created !!"
