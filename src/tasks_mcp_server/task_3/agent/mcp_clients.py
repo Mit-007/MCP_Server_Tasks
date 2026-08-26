@@ -2,21 +2,35 @@ from langchain_mcp_adapters.client import MultiServerMCPClient
 from src.tasks_mcp_server.task_3.agent.core.server_config import SERVERS
 from src.tasks_mcp_server.task_3.agent.core.logger import logger
 
+
 async def get_mcp_servers_tools():
-    try:
-        client = MultiServerMCPClient(SERVERS)
+    all_tools = []
 
-        logger.info("Connected to MCP servers sucessfully.")
+    for server_name, server_config in SERVERS.items():
+        try:
+            logger.info(f"Connecting to MCP server: {server_name}")
 
-        tools = await client.get_tools()
+            client = MultiServerMCPClient({
+                server_name: server_config
+            })
 
-        logger.info(f"Successfully loaded {len(tools)} tools from MCP servers")
+            tools = await client.get_tools()
 
-        return tools
-    
-    except ConnectionError as e:
-        logger.error(f"Failed to connect to MCP servers: {e}")
-        raise
-    except Exception as e:
-        logger.error(f"Failed to load MCP tools: {e}")
-        raise
+            all_tools.extend(tools)
+
+            logger.info(f"Successfully connected to {server_name}")
+
+        except Exception as e:
+            logger.error(f"Failed to connect to MCP server '{server_name}': {e}")
+            continue
+
+    if not all_tools:
+        logger.error("No MCP servers could be connected.")
+        raise ConnectionError("Failed to connect to all MCP servers.")
+
+    logger.info(
+        f"Successfully loaded {len(all_tools)} tools "
+        f"from available MCP servers"
+    )
+
+    return all_tools
