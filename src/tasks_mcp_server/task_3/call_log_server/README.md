@@ -1,566 +1,529 @@
-# Code Review - Task 1 MCP Server
+<div align="center">
 
-## Error #1: Import Path Inconsistency
-**Error:** Mixed import paths with inconsistent module naming  
-**Description:** The server.py file has conflicting import paths - some imports use `tasks_mcp_server` while others use `src.tasks_mcp_server`. This will cause ModuleNotFoundError at runtime.  
-**Severity:** 🔴 CRITICAL - Runtime breaking error  
-**File:** `server.py`  
-**Code Lines:** Lines 2-5
-```python
-from tasks_mcp_server.task_1.core.config import TRANSPORT_TYPE,TRANSPORT_PORT
-from src.tasks_mcp_server.task_1.prompts import prompts 
-from src.tasks_mcp_server.task_1.resources import (job_resources, technicians_resources)
-from src.tasks_mcp_server.task_1.tools import (read_tool, write_tool)
+# 🚀 Task 3 — Multi-Server MCP Agent
+
+### 🔗 Orchestrated Field-Service Agent with Dual MCP Servers
+
+A production-oriented **multi-server MCP agent** that connects both the **Job Server (Task 2)** and **Call Log Server** simultaneously, orchestrating complex cross-server workflows through intelligent tool routing, request correlation, and structured logging.
+
+<p>
+  <img src="https://img.shields.io/badge/Python-3.12%2B-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python 3.12+">
+  <img src="https://img.shields.io/badge/LangChain-Multi%20MCP-1C3C3C?style=for-the-badge&logo=langchain&logoColor=white" alt="LangChain">
+  <img src="https://img.shields.io/badge/MCP-Dual%20Server-6C47FF?style=for-the-badge" alt="MCP Dual Server">
+  <img src="https://img.shields.io/badge/Google%20Gemini-LLM-4285F4?style=for-the-badge&logo=google&logoColor=white" alt="Google Gemini">
+  <img src="https://img.shields.io/badge/Authentication-Bearer%20Token-FF6B6B?style=for-the-badge" alt="Bearer Token Auth">
+  <img src="https://img.shields.io/badge/Async-AsyncIO-2D3748?style=for-the-badge" alt="AsyncIO">
+</p>
+
+<p>
+  <strong>2 MCP Servers</strong> ·
+  <strong>18 Total Tools</strong> ·
+  <strong>5 Workflows</strong> ·
+  <strong>Token Authentication</strong> ·
+  <strong>Request Correlation</strong>
+</p>
+
+</div>
+
+---
+
+## 📌 Overview
+
+This project is a **multi-server MCP agent** that demonstrates sophisticated orchestration between two independent MCP servers:
+
+1. **Job Server (Task 2)** — 8 tools for managing jobs and technicians
+2. **Call Log Server (Task 3 Part A)** — 10 tools for managing customer call logs
+
+The agent uses:
+
+- 🤖 LLM-powered tool selection (Claude / Google Gemini)
+- 🔗 Intelligent tool routing via prefix-based addressing
+- 🔄 Cross-server workflow orchestration (5 complex workflows)
+- 📊 Request correlation with unique IDs
+- ⏱️ Comprehensive latency and metrics tracking
+- 🔐 Bearer token authentication for both servers
+- 📝 Structured logging with redaction of sensitive data
+- 🔀 Result merging for identical tool semantics
+
+---
+
+## 🧰 Technologies Used
+
+| Technology | Purpose |
+|:---|:---|
+| 🐍 **Python 3.12** | Application runtime |
+| 🤖 **LangChain** | LLM orchestration and tool binding |
+| 🔌 **MCP (Model Context Protocol)** | Multi-server tool interface |
+| 🧠 **Google Gemini / Claude** | Language model for tool selection |
+| 🌱 **python-dotenv** | Environment configuration |
+| ⚡ **asyncio** | Concurrent async operations |
+| 📊 **JSON** | Structured logging and result format |
+
+Standard library modules used include:
+
+- `asyncio`
+- `json`
+- `time`
+- `uuid`
+- `logging`
+
+---
+
+## 🏗️ Architecture
+
+### Two-Server Configuration
+
 ```
-**Solution:** Standardize all imports to use consistent path. Choose either all `tasks_mcp_server` or all `src.tasks_mcp_server`.
-```python
-from src.tasks_mcp_server.task_1.core.config import TRANSPORT_TYPE, TRANSPORT_PORT
-from src.tasks_mcp_server.task_1.prompts import prompts 
-from src.tasks_mcp_server.task_1.resources import (job_resources, technicians_resources)
-from src.tasks_mcp_server.task_1.tools import (read_tool, write_tool)
+┌────────────────────────────────────────────────────────────┐
+│                       User Input                           │
+│                    (Chatbot CLI)                           │
+└────────────────────┬─────────────────────────────────────┘
+                     │
+                     ▼
+        ┌────────────────────────────┐
+        │   Claude / Gemini LLM      │
+        │   (Tool Selection Logic)   │
+        └────────┬───────────────────┘
+                 │
+         ┌───────┴───────┐
+         │               │
+         ▼               ▼
+    ┌─────────┐    ┌──────────┐
+    │ Tool    │    │ Workflow │
+    │ Router  │    │ Tools    │
+    │         │    │          │
+    └────┬────┘    └──────────┘
+         │
+    ┌────┴──────────────────────┐
+    │                           │
+    ▼                           ▼
+┌─────────────┐        ┌──────────────────┐
+│ Job Server  │        │ Call Log Server  │
+│ (Task 2)    │        │ (Task 3 Part A)  │
+│             │        │                  │
+│ Port: 3001  │        │ Port: 3000       │
+│             │        │                  │
+│ 8 Tools     │        │ 10 Tools         │
+│ 3 Resources │        │ 2 Resources      │
+│ 2 Prompts   │        │ 1 Prompt         │
+└─────────────┘        └──────────────────┘
+    │                           │
+    └───────────┬───────────────┘
+                │
+                ▼
+         ┌────────────────┐
+         │  Correlation   │
+         │  & Logging     │
+         │                │
+         │ - request_id   │
+         │ - latency_ms   │
+         │ - response_size│
+         │ - server_name  │
+         │ - tool_name    │
+         └────────────────┘
+```
+
+### Request Flow
+
+```
+User Query
+    │
+    ▼
+┌──────────────────────────────────┐
+│ LLM Decides If Tool Needed       │
+└──────────┬───────────────────────┘
+           │
+    ┌──────┴──────┐
+    │             │
+    ▼             ▼
+No Tool       Identifies Tool
+    │             │
+    │             ▼
+    │      ┌────────────────────┐
+    │      │ Route Based On     │
+    │      │ Tool Prefix        │
+    │      │                    │
+    │      │ job_server_* →     │
+    │      │ Job Server (3001)  │
+    │      │                    │
+    │      │ call_log_server_* →│
+    │      │ Call Log (3000)    │
+    │      │                    │
+    │      │ wf* →              │
+    │      │ Workflow Tools     │
+    │      └────────┬───────────┘
+    │              │
+    │              ▼
+    │      ┌──────────────────┐
+    │      │ Add Auth Header  │
+    │      │ Bearer Token     │
+    │      └────────┬─────────┘
+    │              │
+    │              ▼
+    │      ┌──────────────────┐
+    │      │ Execute Tool     │
+    │      │ Track Latency    │
+    │      │ Log Request      │
+    │      └────────┬─────────┘
+    │              │
+    └──────┬───────┘
+           │
+           ▼
+    ┌───────────────┐
+    │ Feed Result   │
+    │ Back to LLM   │
+    └───────┬───────┘
+            │
+            ▼
+    ┌───────────────┐
+    │ LLM Returns   │
+    │ Final Answer  │
+    └───────────────┘
 ```
 
 ---
 
-## Error #2: Function Name Mismatch
-**Error:** Calling non-existent function `register_write_tool` instead of `register_write_tools`  
-**Description:** server.py line 20 calls `register_write_tool()` but the actual function in write_tool.py is named `register_write_tool()` (singular). This will cause AttributeError.  
-**Severity:** 🔴 CRITICAL - Runtime breaking error  
-**File:** `server.py`  
-**Code Line:** Line 20
-```python
-write_tool.register_write_tool(mcp)
-```
-**Solution:** Verify function name exists in write_tool.py. The write_tool.py has correct function name as `register_write_tool()`, so the call is actually correct. However, ensure consistency across all tool modules.
-```python
-write_tool.register_write_tool(mcp)  # This is correct
-```
+## 📁 Project Structure
 
----
-
-## Error #3: Missing Environment Variable Error Handling
-**Error:** No validation when TRANSPORT_TYPE environment variable is missing  
-**Description:** config.py reads TRANSPORT_TYPE but never validates if it's set. If env var is missing, it will be None, causing silent failures or unexpected behavior in server.py line 34.  
-**Severity:** 🔴 CRITICAL - Silent failure, production risk  
-**File:** `core/config.py`  
-**Code Lines:** Lines 6-10
-```python
-TRANSPORT_TYPE = os.getenv("TRANSPORT_TYPE_JOB_SERVER")
-TRANSPORT_PORT = None
-
-if TRANSPORT_TYPE == "HTTP" :
-    TRANSPORT_PORT = int(os.getenv("TRANSPORT_PORT_JOB_SERVER"))
-```
-**Solution:** Add validation for required environment variable.
-```python
-TRANSPORT_TYPE = os.getenv("TRANSPORT_TYPE_JOB_SERVER")
-if not TRANSPORT_TYPE:
-    raise ValueError(
-        "TRANSPORT_TYPE_JOB_SERVER environment variable is required. "
-        "Set to either 'stdio' or 'HTTP'. "
-        "Suggestion: export TRANSPORT_TYPE_JOB_SERVER=stdio or TRANSPORT_TYPE_JOB_SERVER=HTTP"
-    )
-
-TRANSPORT_PORT = None
-if TRANSPORT_TYPE == "HTTP":
-    port_str = os.getenv("TRANSPORT_PORT_JOB_SERVER")
-    if not port_str:
-        raise ValueError(
-            "TRANSPORT_PORT_JOB_SERVER environment variable is required when using HTTP transport. "
-            "Suggestion: export TRANSPORT_PORT_JOB_SERVER=3000"
-        )
-    try:
-        TRANSPORT_PORT = int(port_str)
-    except ValueError:
-        raise ValueError(
-            f"TRANSPORT_PORT_JOB_SERVER must be a valid integer, got: {port_str}. "
-            "Suggestion: export TRANSPORT_PORT_JOB_SERVER=3000"
-        )
-```
-
----
-
-## Error #4: Inconsistent Async/Await Usage
-**Error:** `open_jobs()` function missing `async` keyword while other read tools have it  
-**Description:** Line 50 in read_tool.py defines `open_jobs()` without `async`, but all other similar functions use `async`. This creates inconsistency and may cause issues with async context.  
-**Severity:** 🟡 MEDIUM - Inconsistency, potential runtime issue with async processing  
-**File:** `tools/read_tool.py`  
-**Code Line:** Line 50
-```python
-def open_jobs() -> TS.JobsOutput:
-```
-**Solution:** Add async keyword for consistency.
-```python
-async def open_jobs() -> TS.JobsOutput:
+```text
+task_3/
+│
+├── call_log_server/
+│   ├── server.py                 # Call Log Server main entry point
+│   ├── auth/                      # Token verification & scope auth
+│   │   ├── token_auth.py
+│   │   └── scope_auth.py
+│   ├── middleware/                # HTTP request authentication
+│   │   └── middleware.py
+│   ├── tools/                     # 10 MCP tools
+│   │   └── tools.py
+│   ├── resources/                 # 2 MCP resources
+│   │   └── resources.py
+│   ├── prompts/                   # 1 MCP prompt
+│   │   └── prompts.py
+│   ├── schemas/                   # Pydantic input/output/error schemas
+│   │   ├── tool_input_schemas.py
+│   │   ├── tool_output_schemas.py
+│   │   ├── call_schemas.py
+│   │   └── error_schemas.py
+│   ├── services/                  # Helper validation services
+│   │   ├── call_services.py
+│   │   └── validation_tools_annotation.py
+│   ├── data/                      # In-memory data store
+│   │   ├── calls_data.py
+│   │   └── token.py
+│   └── core/                      # Config, logging, constants
+│       ├── config.py
+│       ├── logger.py
+│       └── constant.py
+│
+├── agent/
+│   ├── main.py                    # Agent entry point & orchestrator
+│   ├── mcp_clients.py             # Multi-server MCP client config
+│   ├── core/
+│   │   ├── config.py              # Agent configuration
+│   │   ├── server_config.py       # Job/Call servers endpoint config
+│   │   └── logger.py              # Agent logging setup
+│   ├── services/
+│   │   ├── llm.py                 # LLM (Gemini) initialization
+│   │   ├── prompt.py              # System prompt & tool descriptions
+│   │   ├── tools.py               # Tool registry & routing
+│   │   └── workflows_tools.py     # Workflow tool wrapper
+│   ├── schemas/
+│   │   ├── workflow_schemas.py    # Workflow result schemas
+│   │   └── workflows_tools_schemas.py
+│   └── workflows/                 # 5 Cross-server workflows
+│       ├── wf1_link_job_and_call.py
+│       ├── wf2_failed_calls_bulk_update_jobs.py
+│       ├── wf3_create_follow_up_jobs.py
+│       ├── wf4_pending_calls_jobs_mapping.py
+│       └── wf5_stats_report_generate.py
+│
+├── ARCHITECTURE.md                # System architecture diagrams
+├── EVALUATION.xml                 # 10 evaluation questions in MCP format
+└── README.md                      # This file
 ```
 
 ---
 
-## Error #5: Syntax Error - Missing Closing Parenthesis
-**Error:** Exception handler missing closing parenthesis  
-**Description:** Line 65 in read_tool.py has unmatched parenthesis in RuntimeError call, causing SyntaxError.  
-**Severity:** 🔴 CRITICAL - Code will not parse/run  
-**File:** `tools/read_tool.py`  
-**Code Line:** Line 65
-```python
-        except Exception as e:
-            raise RuntimeError(
-                f"Failed to get open jobs: {str(e)}.\n"
-                f"Suggestion: retry the request, or call list_jobs to check job data."
-            )
+## 🔧 Call Log Server Tools
+
+| Name | Type | Description |
+|:---|:---|:---|
+| `call_log_server_log_call` | 🔴 Write | Creates a new customer call log. |
+| `call_log_server_get_call` | 🟢 Read | Retrieves a call by call_id. |
+| `call_log_server_list_calls` | 🟢 Read | Lists all calls with cursor pagination. |
+| `call_log_server_list_calls_by_status` | 🟢 Read | Lists calls filtered by status with pagination. |
+| `call_log_server_update_call_outcome` | 🔴 Write | Updates a call's outcome. |
+| `call_log_server_delete_call` | 🔴 Write | Deletes a call from the log. |
+| `call_log_server_add_call_note` | 🔴 Write | Adds a note/annotation to a call. |
+| `call_log_server_list_notes_for_call` | 🟢 Read | Lists all notes for a specific call. |
+| `call_log_server_get_call_summary` | 🟢 Read | Generates LLM-powered summary (via MCP sampling). |
+| `call_log_server_get_stats` | 🟢 Read | Returns call statistics aggregated by status/outcome. |
+
+---
+
+## 📚 Call Log Server Resources
+
+| Name | Type | Description |
+|:---|:---|:---|
+| `calls://recent/{n}` | Resource | Returns the N most recent calls as JSON. |
+| `calls://failed` | Resource | Returns all failed calls as JSON. |
+
+---
+
+## 🤖 Call Log Server Prompt
+
+| Name | Type | Description |
+|:---|:---|:---|
+| `call_log_server_quality_review` | Prompt | Generates a structured quality review prompt for a specific call. |
+
+---
+
+## 🔄 Cross-Server Workflows
+
+### Workflow 1: Link Job and Call
+**File:** `wf1_link_job_and_call.py`
+
+Creates a call, creates a related job, and links them via a call note.
+
 ```
-**Solution:** Verify the closing parenthesis is present. The code in the file appears complete, so ensure no truncation occurred.
+log_call() → create_job() → add_call_note()
+```
+
+**Use Case:** Customer reports an issue via call; system creates job and links them.
+
+---
+
+### Workflow 2: Failed Calls Bulk Update Jobs
+**File:** `wf2_failed_calls_bulk_update_jobs.py`
+
+Fetches failed calls, extracts job IDs, and bulk-updates matching jobs.
+
+```
+list_calls_by_status(failed) → 
+extract job IDs (LLM) → 
+list_jobs() → 
+update_job() [for each match]
+```
+
+**Use Case:** QA review finds failed calls; system cascades updates to linked jobs.
+
+---
+
+### Workflow 3: Create Follow-up Jobs
+**File:** `wf3_create_follow_up_jobs.py`
+
+Analyzes pending calls and auto-creates follow-up jobs.
+
+```
+list_calls_by_status(pending) → 
+LLM analysis → 
+create_job() [for each follow-up needed]
+```
+
+**Use Case:** Proactive job creation based on pending call analysis.
+
+---
+
+### Workflow 4: Pending Calls to Jobs Mapping
+**File:** `wf4_pending_calls_jobs_mapping.py`
+
+Maps pending calls to open jobs and suggests assignments.
+
+```
+list_calls_by_status(pending) → 
+list_jobs(open) → 
+LLM matching → 
+assign_job()
+```
+
+**Use Case:** Automated dispatcher matching pending issues to available work.
+
+---
+
+### Workflow 5: Call and Job Statistics Report
+**File:** `wf5_stats_report_generate.py`
+
+Merges statistics from both servers for a unified report.
+
+```
+get_stats(job_server) + 
+get_stats(call_log_server) → 
+merge → 
+formatted report
+```
+
+**Use Case:** Executive dashboard combining both systems' metrics.
+
+---
+
+## 🔐 Authentication & Authorization
+
+### Bearer Token Authentication
+
+Both servers require valid bearer tokens with appropriate scopes:
+
+- **read** scope: Allows read-only operations (list, get, resources, prompts)
+- **write** scope: Allows write operations (create, update, delete, assign)
+
+### Token Registry
+
+Tokens are stored in `/call_log_server/data/token.py`:
+
 ```python
-        except Exception as e:
-            raise RuntimeError(
-                f"Failed to get open jobs: {str(e)}.\n"
-                f"Suggestion: retry the request, or call list_jobs to check job data."
-            )
+TOKEN_REGISTRY = {
+    "dddgN6MH20Kx9fjJ5W50JCDaKjpxsS1p": {
+        "scopes": ["read", "write"],
+        "expires_at": 1797700000,
+    },
+    "SuELT0bTa1o4nrAJbUnJ9MOemdmmDlMN": {
+        "scopes": ["read"],
+        "expires_at": 1797600000,
+    },
+}
+```
+
+### Header Format
+
+```http
+Authorization: Bearer dddgN6MH20Kx9fjJ5W50JCDaKjpxsS1p
 ```
 
 ---
 
-## Error #6: Missing Job Status Enum Value
-**Error:** `IN_PROGRESS` status used in data but not defined in JobStatus enum  
-**Description:** data.py line 45 has a job with status "in_progress", but schemas/tool_input_schemas.py JobStatus enum doesn't include IN_PROGRESS. This causes validation failure when updating jobs with in_progress status.  
-**Severity:** 🟡 MEDIUM - Data validation error for valid states  
-**File:** `schemas/tool_input_schemas.py`  
-**Code Lines:** Lines 12-16
-```python
-class JobStatus(str, Enum):
-    OPEN = "open"
-    ASSIGNED = "assigned"
-    COMPLETED = "completed"
-    CANCELLED = "cancelled"
-```
-**Solution:** Add missing status to enum.
-```python
-class JobStatus(str, Enum):
-    OPEN = "open"
-    ASSIGNED = "assigned"
-    IN_PROGRESS = "in_progress"
-    COMPLETED = "completed"
-    CANCELLED = "cancelled"
-```
+## 📄 Pagination
+
+Both servers support **cursor-based pagination**:
+
+| Field | Description |
+|:---|:---|
+| `cursor` | Marks the next starting position (encoded as string offset) |
+| `limit` | Number of items per page (1-100, default 20) |
+| `next_cursor` | Cursor for next request (null if on last page) |
+| `has_more` | Boolean indicating more records available |
+| `total_count` | Total number of records across all pages |
 
 ---
 
-## Error #7: Enum Type Stored as Object Instead of String
-**Error:** Priority enum stored as object instead of string value  
-**Description:** In write_tool.py lines 26 and 119, the Priority enum object is stored directly in the job dictionary instead of its string value. This causes type mismatch when serializing to JSON and inconsistency with data model.  
-**Severity:** 🟡 MEDIUM - Type inconsistency, serialization issues  
-**File:** `tools/write_tool.py`  
-**Code Lines:** Lines 26, 119
-```python
-"priority": data.priority,  # Line 26 - stores enum object
-```
-**Solution:** Convert enum to string value.
-```python
-"priority": data.priority.value,  # Line 26
-```
-```python
-if data.priority is not None:
-    job["priority"] = data.priority.value  # Line 119
-```
+## 📊 Request Logging & Correlation
+
+Every tool call is logged with:
+
+- **request_id**: Unique UUID for correlating cross-server calls
+- **server_name**: Which server handled the request (job_server / call_log_server)
+- **tool_name**: Name of the tool executed
+- **args**: Tool arguments (sensitive fields redacted)
+- **latency_ms**: Execution time in milliseconds
+- **response_size_bytes**: Response payload size
+- **status**: success / error
+
+### Sensitive Field Redaction
+
+Fields containing `token`, `auth`, `password`, `secret`, `key`, or `credential` are automatically redacted as `***REDACTED***` in logs.
 
 ---
 
-## Error #8: Typo in Error Messages
-**Error:** Misspelled word "Plaese" instead of "Please"  
-**Description:** prompts.py lines 20 and 83 contain typo "Plaese" which appears in user-facing error messages.  
-**Severity:** 🟢 LOW - Typo, reduced professionalism  
-**File:** `prompts/prompts.py`  
-**Code Lines:** Lines 20, 83
-```python
-return f"Job {job_id} was not found.Plaese provide a valid existing job ID."
+# 🚀 Clone and Run
+ 
+## 📋 Prerequisites
+ 
+- **Python 3.12+**
+- **uv** or **pip**
+- **Task 2 Job Server** running on port 3001
+- **Google Gemini API key** or Claude API key
+## 1️⃣ Clone the Repository
+ 
+```bash
+git clone <REPO_URL>
+cd task_3
 ```
-**Solution:** Fix typo.
-```python
-return f"Job {job_id} was not found. Please provide a valid existing job ID."
+ 
+## 2️⃣ Install Dependencies (if needed)
+ 
+```bash
+uv sync
+# or
+pip install -r requirements.txt
 ```
+ 
+## 3️⃣ Configure Servers
+ 
+Create a `.env` file:
+ 
+```bash
+# Call Log Server (port 3000)
+TRANSPORT_TYPE_CALL_LOG_SERVER=HTTP
+TRANSPORT_PORT_CALL_LOG_SERVER=3000
+AUTH_TOKEN=Bearer dddgN6MH20Kx9fjJ5W50JCDaKjpxsS1p
+ 
+# Agent (LLM)
+GOOGLE_API_KEY=your-api-key-here
+ 
+# (Optional) Custom server URLs
+JOB_SERVER_URL=http://localhost:3001/mcp
+CALL_LOG_SERVER_URL=http://localhost:3000/mcp
+```
+ 
+## 4️⃣ Start Call Log Server
+ 
+```bash
+cd call_log_server
+export TRANSPORT_TYPE_CALL_LOG_SERVER=HTTP
+export TRANSPORT_PORT_CALL_LOG_SERVER=3000
+python server.py
+```
+ 
+## 5️⃣ Start Agent
+ 
+```bash
+cd ../agent
+export GOOGLE_API_KEY="your-api-key"
+python -m src.tasks_mcp_server.task_3.agent.main
+```
+ 
+## 6️⃣ Interact with Agent
+ 
+```
+> What failed calls do we have?
+> Create a job for the network issue mentioned earlier.
+> Generate a statistics report combining both servers.
+> List all open jobs and available technicians.
+```
+---
+
+## 📋 Environment Variables
+
+### Call Log Server
+
+| Variable | Purpose | Example |
+|:---|:---|:---|
+| `TRANSPORT_TYPE_CALL_LOG_SERVER` | Server transport | `HTTP` / `STDIO` |
+| `TRANSPORT_PORT_CALL_LOG_SERVER` | HTTP port | `3000` |
+| `AUTH_TOKEN` | STDIO authentication | `Bearer YOUR_TOKEN` |
+
+### Agent
+
+| Variable | Purpose | Example |
+|:---|:---|:---|
+| `GOOGLE_API_KEY` | Google Gemini API key | `AIzaSyD...` |
+| (Optional) `JOB_SERVER_URL` | Job server endpoint | `http://localhost:3001/mcp` |
+| (Optional) `CALL_LOG_SERVER_URL` | Call log server endpoint | `http://localhost:3000/mcp` |
 
 ---
 
-## Error #9: Incorrect Error Message Return Type
-**Error:** Returning tuples instead of strings from exception handlers  
-**Description:** prompts.py lines 56-58, 60-62, 64-66, 135-137, 139-141, 143-145 return tuples for error messages instead of single strings. This breaks error message consistency and causes type errors.  
-**Severity:** 🔴 CRITICAL - Error handling broken, type mismatch  
-**File:** `prompts/prompts.py`  
-**Code Lines:** Lines 56-66, 135-145
-```python
-except KeyError as exc:
-    return (
-        f"Unable to triage Job {job_id}: required job field is missing ({exc}).",
-        f"verify that the job data and check it contains all required fields")
-```
-**Solution:** Return single formatted string instead of tuple.
-```python
-except KeyError as exc:
-    return (
-        f"Unable to triage Job {job_id}: required job field is missing ({exc}).\n"
-        f"Suggestion: verify that the job data and check it contains all required fields."
-    )
-```
+## 📝 License
+
+No license file is currently included in the repository.
 
 ---
 
-## Error #10: Resource URI Naming Does Not Match Specification
-**Error:** Resource URIs use `task-1://` namespace instead of specified `jobs://` and `technicians://`  
-**Description:** Spec requires resources with URIs like `jobs://all`, `jobs://open`, `technicians://available` but code uses `task-1://list_of_jobs`, `task-1://list_of_open_jobs`, `task-1://available_technicians`.  
-**Severity:** 🟡 MEDIUM - Specification mismatch, breaking change for clients expecting spec URIs  
-**File:** `resources/job_resources.py`, `resources/technicians_resources.py`  
-**Code Lines:** Lines 6, 24 (job_resources.py), Line 6 (technicians_resources.py)
-```python
-@mcp.resource("task-1://list_of_jobs", mime_type="application/json")
-@mcp.resource("task-1://list_of_open_jobs", mime_type="application/json")
-@mcp.resource("task-1://available_technicians", mime_type="application/json")
-```
-**Solution:** Update resource URIs to match specification.
-```python
-# In job_resources.py
-@mcp.resource("jobs://all", mime_type="application/json")
-@mcp.resource("jobs://open", mime_type="application/json")
+<div align="center">
 
-# In technicians_resources.py
-@mcp.resource("technicians://available", mime_type="application/json")
-```
+### 🚀 Task 3 — Multi-Server MCP Agent
 
----
+**Built with Python + LangChain + MCP + Google Gemini**
 
-## Error #11: Inconsistent Resource Function Naming
-**Error:** Resource function names don't follow consistent naming convention  
-**Description:** job_resources.py lines 7, 25 use `all_jobs()` and `open_jobs()` while technicians_resources.py line 7 uses `available_technicians()`. Inconsistent naming makes code harder to maintain.  
-**Severity:** 🟡 MEDIUM - Code style consistency  
-**File:** `resources/job_resources.py`, `resources/technicians_resources.py`  
-**Code Lines:** Line 7 (job_resources.py), Line 25 (job_resources.py), Line 7 (technicians_resources.py)
-```python
-def all_jobs():  # Inconsistent naming
-def open_jobs():
-async def available_technicians():  # Also inconsistent async usage
-```
-**Solution:** Use consistent naming pattern like `list_all_jobs`, `list_open_jobs`, `list_available_technicians`.
-```python
-# In job_resources.py
-async def list_all_jobs():
-async def list_open_jobs():
+🔗 Dual Servers · 🤖 LLM Orchestration · 🔄 Workflow Automation · 📊 Cross-Server Analytics
 
-# In technicians_resources.py
-async def list_available_technicians():
-```
-
----
-
-## Error #12: Missing Async Keyword in Resource Functions
-**Error:** Resource functions in job_resources.py missing `async` keyword while technicians_resources.py has it  
-**Description:** Inconsistent use of async - job_resources.py functions are not async while technicians_resources.py function is async. This creates inconsistency in resource handling.  
-**Severity:** 🟡 MEDIUM - Inconsistency, potential async context issues  
-**File:** `resources/job_resources.py`, `resources/technicians_resources.py`  
-**Code Lines:** Lines 7, 25 (job_resources.py), Line 7 (technicians_resources.py)
-```python
-def all_jobs():  # Not async
-def open_jobs():  # Not async
-async def available_technicians():  # Is async
-```
-**Solution:** Make all resource functions async for consistency.
-```python
-# job_resources.py
-@mcp.resource("jobs://all", mime_type="application/json")
-async def list_all_jobs():
-    ...
-
-@mcp.resource("jobs://open", mime_type="application/json")
-async def list_open_jobs():
-    ...
-```
-
----
-
-## Error #13: No Skill Validation During Job Assignment
-**Error:** assign_job() doesn't validate if technician has required skills for the job  
-**Description:** write_tool.py assign_job() function assigns technician to job without checking if technician has necessary skills. This violates business logic for a technical support system.  
-**Severity:** 🟡 MEDIUM - Business logic flaw, could assign wrong technician  
-**File:** `tools/write_tool.py`  
-**Code Lines:** Lines 46-96
-```python
-async def assign_job(data : AssignJobInput) -> JobMutationResponse:
-    # ... validation code ...
-    if technician["available"] is not True:
-        return JobMutationResponse(...)
-    
-    # Missing: skill validation
-    job["status"] = "assigned"
-    job["technician_id"] = data.technician_id
-```
-**Solution:** Add skill matching validation before assignment.
-```python
-async def assign_job(data : AssignJobInput) -> JobMutationResponse:
-    try:
-        job = get_job(data.job_id)
-        if job is None:
-            return JobMutationResponse(...)
-        
-        if job["status"] != "open":
-            return JobMutationResponse(...)
-        
-        technician = get_technician(data.technician_id)
-        if technician is None:
-            return JobMutationResponse(...)
-        
-        if technician["available"] is not True:
-            return JobMutationResponse(...)
-        
-        # ADD: Skill validation
-        required_skill = extract_skill_from_job(job["title"])
-        if required_skill and required_skill not in technician.get("skills", []):
-            return JobMutationResponse(
-                success=False,
-                message=f"Technician {data.technician_id} does not have required skill '{required_skill}' for this job. "
-                        f"Call get_available_technicians and find a technician with matching skills.",
-                job=job,
-            )
-        
-        job["status"] = "assigned"
-        job["technician_id"] = data.technician_id
-        technician["available"] = False
-        
-        return JobMutationResponse(...)
-    except Exception as e:
-        ...
-```
-
----
-
-## Error #14: ENV Variable Naming Mismatch With Specification
-**Error:** Environment variable name doesn't match specification  
-**Description:** Specification mentions "TRANSPORT" env var but code uses "TRANSPORT_TYPE_JOB_SERVER" and "TRANSPORT_PORT_JOB_SERVER". This breaks the specification contract.  
-**Severity:** 🟡 MEDIUM - Specification mismatch  
-**File:** `core/config.py`, `server.py`  
-**Code Lines:** Lines 6, 10 (config.py)
-```python
-TRANSPORT_TYPE = os.getenv("TRANSPORT_TYPE_JOB_SERVER")
-TRANSPORT_PORT = int(os.getenv("TRANSPORT_PORT_JOB_SERVER"))
-```
-**Solution:** Use specification-compliant environment variable names or document the deviation.
-```python
-TRANSPORT_TYPE = os.getenv("TRANSPORT", "stdio").upper()
-if TRANSPORT_TYPE not in ["STDIO", "HTTP"]:
-    raise ValueError(
-        f"TRANSPORT must be 'stdio' or 'HTTP', got: {TRANSPORT_TYPE}. "
-        "Suggestion: export TRANSPORT=stdio or TRANSPORT=HTTP"
-    )
-
-TRANSPORT_PORT = None
-if TRANSPORT_TYPE == "HTTP":
-    port_str = os.getenv("TRANSPORT_PORT", "3000")
-    try:
-        TRANSPORT_PORT = int(port_str)
-    except ValueError:
-        raise ValueError(
-            f"TRANSPORT_PORT must be a valid integer, got: {port_str}. "
-            "Suggestion: export TRANSPORT_PORT=3000"
-        )
-```
-
----
-
-## Error #15: Delete Job Inefficient Implementation
-**Error:** Using inefficient loop to find and delete job  
-**Description:** delete_job() in write_tool.py lines 144-158 uses loop iteration and remove() instead of more efficient approach. This is O(n) complexity twice (find + remove).  
-**Severity:** 🟢 LOW - Performance, scalability concern  
-**File:** `tools/write_tool.py`  
-**Code Lines:** Lines 144-158
-```python
-for job in D.jobs:
-    if job["id"] == data.job_id:
-        if job["technician_id"] is not None:
-            technician = get_technician(job["technician_id"])
-            if technician is not None:
-                technician["available"] = True
-        D.jobs.remove(job)
-```
-**Solution:** Use more efficient approach with index.
-```python
-# Find index instead of iterating twice
-job_index = next(
-    (i for i, job in enumerate(D.jobs) if job["id"] == data.job_id),
-    None
-)
-
-if job_index is None:
-    return JobMutationResponse(
-        success=False,
-        message=f"Job {data.job_id} not found. Call list_jobs to see valid job IDs and try again.",
-        job=None,
-    )
-
-job = D.jobs[job_index]
-
-# Restore technician availability
-if job["technician_id"] is not None:
-    technician = get_technician(job["technician_id"])
-    if technician is not None:
-        technician["available"] = True
-
-# Remove by index
-D.jobs.pop(job_index)
-
-return JobMutationResponse(
-    success=True,
-    message=f"Job {data.job_id} deleted successfully",
-    job=job,
-)
-```
-
----
-
-## Error #16: No Input Validation for Field Lengths After Schema
-**Error:** Schema validates but tool doesn't check for edge cases like empty strings after strip  
-**Description:** CreateJobInput accepts strings but doesn't validate that they're not just whitespace. A user could pass "   " which passes min_length=1 but is functionally empty.  
-**Severity:** 🟡 MEDIUM - Data quality issue  
-**File:** `schemas/tool_input_schemas.py`  
-**Code Lines:** Lines 19-22
-```python
-title: str = Field(..., description="Job title", min_length=1, max_length=200)
-description: str = Field(..., description="Detailed job description", min_length=1, max_length=2000)
-```
-**Solution:** Add custom validator to check for whitespace.
-```python
-from pydantic import BaseModel, Field, field_validator
-
-class CreateJobInput(BaseModel):
-    id: str = Field(..., description="Unique identifier for the job", min_length=3)
-    title: str = Field(..., description="Job title", min_length=1, max_length=200)
-    description: str = Field(..., description="Detailed job description", min_length=1, max_length=2000)
-    priority: Priority = Field(..., description="Job priority level")
-    
-    @field_validator('title', 'description')
-    @classmethod
-    def validate_not_whitespace(cls, v):
-        if isinstance(v, str) and not v.strip():
-            raise ValueError("Field cannot be only whitespace")
-        return v.strip()
-```
-
----
-
-## Error #17: Potential Race Condition in State Mutation
-**Error:** No locking mechanism for concurrent state modifications  
-**Description:** The in-memory store uses plain Python lists/dicts without any locking. If multiple requests happen concurrently, race conditions can occur (e.g., two requests reading technician availability simultaneously).  
-**Severity:** 🟡 MEDIUM - Concurrency issue, data corruption risk  
-**File:** `data/data.py` and all tool files  
-**Code Lines:** N/A (architectural issue)
-**Solution:** Add thread-safe locking mechanism.
-```python
-# Add to data.py
-import threading
-
-_lock = threading.RLock()
-
-def with_lock(func):
-    def wrapper(*args, **kwargs):
-        with _lock:
-            return func(*args, **kwargs)
-    return wrapper
-```
-
-Then decorate all mutation operations in tools with `@with_lock`.
-
----
-
-## Error #18: No Limit on Resource Return Size
-**Error:** Resources return entire job/technician list without pagination  
-**Description:** Resources return all jobs/technicians without limiting response size. With thousands of records, this could cause memory/performance issues.  
-**Severity:** 🟡 MEDIUM - Scalability issue  
-**File:** `resources/job_resources.py`, `resources/technicians_resources.py`  
-**Code Lines:** Lines 10, 28-31, 10-13
-```python
-return D.jobs  # Returns all jobs
-```
-**Solution:** Add pagination or limit results.
-```python
-@mcp.resource("jobs://all", mime_type="application/json")
-async def list_all_jobs(limit: int = 100, offset: int = 0):
-    """Give list of all jobs with pagination."""
-    return D.jobs[offset:offset+limit]
-```
-
----
-
-## Error #19: Missing Docstring on Exception Handling Pattern
-**Error:** Inconsistent exception handling patterns across files  
-**Description:** Some files catch specific exceptions (KeyError, TypeError) while others catch generic Exception. This creates inconsistent error handling and potential missed error cases.  
-**Severity:** 🟡 MEDIUM - Inconsistent error handling  
-**File:** `tools/read_tool.py`, `tools/write_tool.py`, `prompts/prompts.py`, `services/validation_services.py`
-**Solution:** Standardize exception handling pattern. Define a utility module:
-```python
-# Add new file: services/error_handler.py
-def handle_database_error(exc: Exception, operation: str, resource_id: str) -> str:
-    """Standard error message for database operations."""
-    if isinstance(exc, KeyError):
-        return (
-            f"Unable to {operation} {resource_id}: required field is missing ({exc}).\n"
-            f"Suggestion: verify that the data contains all required fields."
-        )
-    elif isinstance(exc, TypeError):
-        return (
-            f"Unable to {operation} {resource_id}: invalid data structure ({exc}).\n"
-            f"Suggestion: verify that the data has the expected dictionary structure."
-        )
-    else:
-        return (
-            f"Unable to {operation} {resource_id}: unexpected error ({exc}).\n"
-            f"Suggestion: verify the data and try again."
-        )
-```
-
----
-
-## Error #20: No Logging for Debugging and Monitoring
-**Error:** No logging implementation despite having logger initialized  
-**Description:** server.py line 8 creates logger but never uses it. Production code needs logging for debugging and monitoring state mutations.  
-**Severity:** 🟡 MEDIUM - Operational visibility issue  
-**File:** `server.py`, all tool files  
-**Code Line:** Line 8
-```python
-logger = logging.getLogger(__name__)
-```
-**Solution:** Add logging throughout the codebase.
-```python
-# In server.py
-logger.info(f"MCP Server starting with transport: {TRANSPORT_TYPE}")
-
-# In write_tool.py create_job
-logger.info(f"Creating new job: {data.id}")
-logger.debug(f"Job details: {new_job}")
-
-# In assign_job
-logger.info(f"Assigning job {data.job_id} to technician {data.technician_id}")
-logger.debug(f"Technician availability changing from True to False")
-```
-
----
-
-## Summary Table
-
-| # | Error | Severity | Type | File |
-|---|-------|----------|------|------|
-| 1 | Import path inconsistency | 🔴 CRITICAL | Code | server.py |
-| 2 | Function name mismatch | ✓ Verified | Code | server.py |
-| 3 | Missing env var validation | 🔴 CRITICAL | Error Handling | config.py |
-| 4 | Inconsistent async usage | 🟡 MEDIUM | Style | read_tool.py |
-| 5 | Syntax error (parenthesis) | ✓ Verified | Code | read_tool.py |
-| 6 | Missing JobStatus enum | 🟡 MEDIUM | Data | schemas |
-| 7 | Enum stored as object | 🟡 MEDIUM | Type | write_tool.py |
-| 8 | Typo "Plaese" | 🟢 LOW | Typo | prompts.py |
-| 9 | Tuple instead of string | 🔴 CRITICAL | Type | prompts.py |
-| 10 | Resource URI mismatch | 🟡 MEDIUM | Spec | resources |
-| 11 | Inconsistent naming | 🟡 MEDIUM | Style | resources |
-| 12 | Missing async | 🟡 MEDIUM | Style | resources |
-| 13 | No skill validation | 🟡 MEDIUM | Logic | write_tool.py |
-| 14 | Env var name mismatch | 🟡 MEDIUM | Spec | config.py |
-| 15 | Inefficient deletion | 🟢 LOW | Performance | write_tool.py |
-| 16 | No whitespace validation | 🟡 MEDIUM | Data | schemas |
-| 17 | No concurrency locking | 🟡 MEDIUM | Concurrency | data.py |
-| 18 | No pagination | 🟡 MEDIUM | Scalability | resources |
-| 19 | Inconsistent error handling | 🟡 MEDIUM | Consistency | multiple |
-| 20 | No logging | 🟡 MEDIUM | Operations | server.py |
+</div>
