@@ -9,6 +9,7 @@ from src.tasks_mcp_server.task_3.agent.services.llm import llm
 from src.tasks_mcp_server.task_3.agent.services.tools import get_tools
 from src.tasks_mcp_server.task_3.agent.core.logger import logger
 from src.tasks_mcp_server.task_3.agent.services.prompt import get_prompt
+from src.tasks_mcp_server.task_3.agent.services.extract_response import extract_response_text
 
 # ============================================================
 # Calculate response size
@@ -96,8 +97,7 @@ async def main():
             prompt = get_prompt(messages)
 
             # Call LLM
-            response = await llm_with_tools.ainvoke(messages)
-
+            response = await llm_with_tools.ainvoke(prompt)
             messages.append(response)
 
             # ------------------------------------------------
@@ -299,8 +299,9 @@ async def main():
             print("\n\n----------------")
             print("|✅ Output :-  |")
             print("----------------")
-            print("\nAI:",response.content[0]["text"])
-
+            response_text = extract_response_text(response)
+            print(f"\nAI: {response_text}")
+            
         except Exception as e:
             logger.exception("Error while processing user request")
             print(f"\n❌ Error : {str(e)}")

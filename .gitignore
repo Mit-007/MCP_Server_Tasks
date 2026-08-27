@@ -12,8 +12,6 @@ wheels/
 # log files
 logs/
 
-# test file
-tests/
 
 # env file
 .env

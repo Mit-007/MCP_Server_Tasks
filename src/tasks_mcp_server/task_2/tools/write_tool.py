@@ -222,10 +222,10 @@ def register_write_tool(mcp):
             )
             
             if job_index is None:
-                return JobMutationResponse(
-                    success=False,
-                    message=f"Job {data.job_id} not found. Call list_jobs to see valid job IDs and try again.",
-                    job=None,
+                return ErrorResponse(
+                    error=f"Job {data.job_id} not found",
+                    code="JOB_NOT_FOUND",
+                    suggestion="Call list_jobs to see valid job IDs and try again.",
                 )
             
             job = D.jobs[job_index]
