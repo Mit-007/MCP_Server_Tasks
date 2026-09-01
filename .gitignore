@@ -21,3 +21,5 @@ DEMO_ARCHITECTURE.md
 DEMO_EVALUATION.xml
 
 command.md
+
+.pytest_cache
